@@ -1,10 +1,11 @@
 SCRIPT_DIR=`dirname ${BASH_SOURCE[0]}`
+SCRIPT_DIR=`readlink -e $SCRIPT_DIR`
 
 PATHVAR=""
 LIBVAR=""
-PYTHONVAR=""
 
 LOGFILE=$SCRIPT_DIR/delphes.log
+VARFILE=$SCRIPT_DIR/delphes.vars
 date > $LOGFILE
 echo "=== installing delphes ===" >> $LOGFILE
 
@@ -33,6 +34,9 @@ function execute()
     echo -n "  installing ... "
     make install &>> $LOGFILE || return 1
     echo "ok"
+    
+    PATHVAR=$SCRIPT_DIR/delphes-3.4.2pre15/release/bin
+    LIBVAR=$SCRIPT_DIR/delphes-3.4.2pre15/release/lib
     return 0
 }
 
@@ -40,6 +44,9 @@ echo "=== installing delphes ==="
 if execute
     then
     echo "=== delphes installed ==="
+    echo "PATH="$PATHVAR":\$PATH" > $VARFILE
+    echo "LD_LIBRARY_PATH="$LIBVAR":\$LD_LIBRARY_PATH" >> $VARFILE
+    #echo "export PYTHONPATH="$PYTHONVAR":\$PYTHONPATH" >> $VARFILE
     else
     echo "failed"
     echo "  ... (last 200 lines from log file) ..."
