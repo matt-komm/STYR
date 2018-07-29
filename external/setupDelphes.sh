@@ -18,7 +18,7 @@ function execute()
     echo -n "  configuring ... "
     cd delphes-3.4.2pre15 &>> $LOGFILE
     rm cmake/FindPythia8.cmake &>> $LOGFILE
-    INSTALLDIR=$PWD/release
+    INSTALLDIR=$SCRIPT_DIR/delphes-3.4.2pre15/release
     mkdir build &>> $LOGFILE
     cd build &>> $LOGFILE
     cmake .. \
@@ -33,9 +33,9 @@ function execute()
     make install &>> $LOGFILE || return 1
     echo "ok"
     
-    PATHVAR=$SCRIPT_DIR/delphes-3.4.2pre15/release/bin
-    LIBVAR=$SCRIPT_DIR/delphes-3.4.2pre15/release/lib
-    DELPHESVAR=$SCRIPT_DIR/delphes-3.4.2pre15/release
+    PATHVAR=$INSTALLDIR/bin
+    LIBVAR=$INSTALLDIR/lib
+    DELPHESVAR=$INSTALLDIR
     return 0
 }
 
