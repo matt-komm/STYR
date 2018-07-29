@@ -27,7 +27,7 @@ class Event
         const Branch<TYPE>& getBranch(const std::string& name) const
         {
             auto it = _branchMap.find(name);
-            if (it!=_branchMap.end())
+            if (it==_branchMap.end())
             {
                 throw std::runtime_error("Branch with name '"+name+"' does not exist!");
             }
