@@ -1,7 +1,5 @@
-#ifndef PROCESS_H
-#define PROCESS_H
-
-#include "Module.h"
+#ifndef STYR_PROCESS_H
+#define STYR_PROCESS_H
 
 #include "TFile.h"
 
@@ -9,6 +7,8 @@
 
 namespace styr
 {
+
+class Module;
 
 class Process
 {

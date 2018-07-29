@@ -4,28 +4,49 @@ add_definitions(-std=c++0x)
 add_definitions(-Wall)
 add_definitions(-Wextra)
 
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
 find_package(ROOT REQUIRED)
 find_package(Delphes REQUIRED)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} SYSTEM ${ROOT_INCLUDE_DIR} ${DELPHES_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include SYSTEM ${ROOT_INCLUDE_DIR} ${DELPHES_INCLUDE_DIR})
+
+set(HEADER_FILES_FOR_DICT
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Process.h  
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Event.h  
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/LinkDef.h
+)
 
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dict.C 
     COMMAND ${ROOT_DICT_EXECUTABLE} 
         -f ${CMAKE_CURRENT_BINARY_DIR}/dict.C 
-        -c ${CMAKE_CURRENT_SOURCE_DIR}/Process.h  
-        ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
+        -I${CMAKE_CURRENT_SOURCE_DIR}/include
+        -c ${HEADER_FILES_FOR_DICT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "generating dictionaries"
 )
 
-add_library(styr MODULE
-    Process.cc
+add_library(styr SHARED
+    src/Process.cc
+    src/Event.cc
     dict.C
 )
 
 target_link_libraries(styr ${ROOT_LIBRARIES} ${DELPHES_LIBRARIES})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test.py ${CMAKE_CURRENT_BINARY_DIR}/test.py COPYONLY)
+
+
+OPTION(ENABLE_TEST "Build tests" ON)
+if (ENABLE_TEST)
+    enable_testing()
+    # add exta warnings
+    if (OSNAME STREQUAL "LINUX")
+        set(CMAKE_CXX_FLAGS "-Wextra -Wall -pedantic -Wno-unused-parameter ${CMAKE_CXX_FLAGS}" )
+    endif (OSNAME STREQUAL "LINUX")
+    if (OSNAME STREQUAL "WINDOWS")
+        set(CMAKE_CXX_FLAGS "/Wall ${CMAKE_CXX_FLAGS}" )
+    endif (OSNAME STREQUAL "WINDOWS")
+    
+    add_subdirectory(test)
+endif (ENABLE_TEST)
 
