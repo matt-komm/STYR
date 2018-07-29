@@ -1,0 +1,35 @@
+language: cpp
+matrix:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-4.8']
+      env: COMPILER=g++-4.8
+      
+    - os: linux
+      compiler: clang
+      env: COMPILER=clang++
+
+before_script:
+  - source external/setupDelphes.sh
+  - source setVars.h
+  - mkdir analysis/build
+  - cd analysis/build
+  - cmake -G"Unix Makefiles" -D CMAKE_CXX_COMPILER=$COMPILER -D CMAKE_BUILD_TYPE=Debug -D ENABLE_TEST=ON -D CMAKE_INSTALL_PREFIX=../release ..
+
+script: 
+  - cmake --build . --config Debug
+  - ctest -V -C Debug
+  
+branches:
+  only:
+    - master
+    
+notifications:
+  email:
+    recipients:
+      - mkomm@cern.ch
+    on_success: change
+on_failure: always
