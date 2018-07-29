@@ -1,14 +1,17 @@
 set(searchpath $ENV{DELPHES_DIR})
 
+message(STATUS "Looking for delphes installation under: ${searchpath}")
 find_library(DELPHES_LIBRARY
               NAMES Delphes delphes
               HINTS ${searchpath}
               PATH_SUFFIXES lib)
+message(STATUS "Delphes lib: ${DELPHES_LIBRARY}")
 
 find_path(DELPHES_INCLUDE_DIR
            NAMES classes/DelphesClasses.h modules/Delphes.h
            HINTS ${searchpath}
            PATH_SUFFIXES include)
+message(STATUS "Delphes include directory: ${DELPHES_INCLUDE_DIR}")
 
 unset(searchpath)
 
