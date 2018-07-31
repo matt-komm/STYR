@@ -23,7 +23,16 @@ class Event
         Event(TTree* tree):
             _tree(tree)
         {
-            //_treeBranches
+            auto array = _tree->GetListOfBranches();
+            for (int i = 0; i < array->GetSize(); ++i)
+            {
+                auto obj = array->At(i);
+                TBranch* branch = dynamic_cast<TBranch*>(obj);
+                if (branch)
+                {
+                    _inputTreeBranches[branch->GetName()] = branch;
+                }
+            }
         }
         
         template<class TYPE>
