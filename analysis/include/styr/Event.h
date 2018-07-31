@@ -16,11 +16,14 @@ class Event
     private:
         TTree* _tree;
         
+        std::unordered_map<std::string, TBranch*> _inputTreeBranches;
         std::unordered_map<std::string, std::shared_ptr<BranchBase>> _branchMap;
         
     public:
-        Event()
+        Event(TTree* tree):
+            _tree(tree)
         {
+            //_treeBranches
         }
         
         template<class TYPE>
@@ -29,8 +32,13 @@ class Event
             auto it = _branchMap.find(name);
             if (it==_branchMap.end())
             {
-                throw std::runtime_error("Branch with name '"+name+"' does not exist!");
+                if (_inputTreeBranches.find(name)==_inputTreeBranches.end())
+                {
+                    throw std::runtime_error("Branch with name '"+name+"' does not exist!");
+                }
+                //TODO: get branch from tree
             }
+            //get branch from map
             Branch<TYPE>* branch = dynamic_cast<Branch<TYPE>*>(it->second.get());
             if (not branch)
             {
@@ -46,6 +54,10 @@ class Event
             if (it!=_branchMap.end())
             {
                 throw std::runtime_error("Cannot create branch with name '"+name+"'. It does already exist!");
+            }
+            if (_inputTreeBranches.find(name)!=_inputTreeBranches.end())
+            {
+                throw std::runtime_error("Branch with name '"+name+"' already exists in input tree!");
             }
             
             auto branch = Branch<TYPE>::createNewBranch(name,_tree);

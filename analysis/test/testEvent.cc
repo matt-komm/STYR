@@ -5,21 +5,24 @@
 
 void test_getNotExistingBranch()
 {
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     std::runtime_error err("");
     ASSERT_RAISE_A(std::runtime_error, err, event.getBranch<int>("test"));
 }
 
 void test_createBranch()
 {
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     styr::Branch<int>& testBranch = event.createBranch<int>("test");
     (void)testBranch;
 }
 
 void test_getExistingBranch()
 {
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     std::runtime_error err("");
     event.createBranch<int>("test");
     const styr::Branch<int>& testBranch2 = event.getBranch<int>("test");
@@ -28,7 +31,8 @@ void test_getExistingBranch()
 
 void test_getExistingBranchWrongType()
 {
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     event.createBranch<int>("test");
     std::runtime_error err("");
     ASSERT_RAISE_A(std::runtime_error,err,event.getBranch<float>("test"));
@@ -36,7 +40,8 @@ void test_getExistingBranchWrongType()
 
 void test_createExistingBranch()
 {
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     styr::Branch<int>& testBranch = event.createBranch<int>("test");
     std::runtime_error err("");
     ASSERT_RAISE_A(std::runtime_error,err,event.createBranch<int>("test"));

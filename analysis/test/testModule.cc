@@ -24,7 +24,8 @@ class MyModule:
 void test_createModule()
 {
     MyModule module;
-    styr::Event event;
+    TTree tree;
+    styr::Event event(&tree);
     module.analyze(event);
 }
 
