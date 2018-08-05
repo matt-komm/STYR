@@ -33,27 +33,16 @@ template<class TYPE>
 class Branch:
     public BranchBase
 {
-    private:
+    protected:
         Branch(const std::string& name):
             BranchBase(name)
         {
         }
-
-    protected:
+    
         static const std::string typeName;
         
     public:
     
-        static std::shared_ptr<Branch<TYPE>> createNewBranch(const std::string& name, TTree*)
-        {
-            Branch<TYPE>* b = new Branch<TYPE>(name);
-            return std::shared_ptr<Branch<TYPE>>(b);
-        }
-        
-        static std::shared_ptr<const Branch<TYPE>> getExistingBranch(const std::string& name, TTree*)
-        {
-            return new Branch<TYPE>(name);
-        }
 
         virtual const std::type_info& getType() const
         {
@@ -67,6 +56,28 @@ class Branch:
 };
 
 template<class TYPE> const std::string Branch<TYPE>::typeName = typeid(TYPE).name();
+
+template<class TYPE>
+class BranchFromTTree:
+    public Branch<TYPE>
+{
+    public:
+        BranchFromTTree(const std::string& name, TTree* _tree):
+            Branch<TYPE>(name)
+        {
+        }
+};
+
+template<class TYPE>
+class BranchCached:
+    public Branch<TYPE>
+{
+    public:
+        BranchCached(const std::string& name):
+            Branch<TYPE>(name)
+        {
+        }
+};
 
 }
 

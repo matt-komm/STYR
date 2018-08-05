@@ -17,7 +17,8 @@ class Event
         TTree* _tree;
         
         std::unordered_map<std::string, TBranch*> _inputTreeBranches;
-        std::unordered_map<std::string, std::shared_ptr<BranchBase>> _branchMap;
+        std::unordered_map<std::string, std::shared_ptr<const BranchBase>> _inputBranchMap;
+        std::unordered_map<std::string, std::shared_ptr<BranchBase>> _cacheBranchMap;
         
     public:
         Event(TTree* tree):
@@ -38,39 +39,48 @@ class Event
         template<class TYPE>
         const Branch<TYPE>& getBranch(const std::string& name) const
         {
-            auto it = _branchMap.find(name);
-            if (it==_branchMap.end())
+            auto itInput = _inputBranchMap.find(name);
+            if (itInput!=_inputBranchMap.end())
             {
-                if (_inputTreeBranches.find(name)==_inputTreeBranches.end())
+                std::shared_ptr<const Branch<TYPE>> branch = std::dynamic_pointer_cast<const Branch<TYPE>>(itInput->second);
+                if (not branch)
                 {
-                    throw std::runtime_error("Branch with name '"+name+"' does not exist!");
-                }
-                //TODO: get branch from tree
+                    throw std::runtime_error("Cannot cast input branch of type '"+itInput->second->getTypeName()+"' to '"+(typeid(TYPE).name())+"'");
+                } 
+                return *branch;
             }
-            //get branch from map
-            Branch<TYPE>* branch = dynamic_cast<Branch<TYPE>*>(it->second.get());
-            if (not branch)
+            auto itCache = _cacheBranchMap.find(name);
+            if (itCache!=_cacheBranchMap.end())
             {
-                throw std::runtime_error("Cannot cast branch with name '"+name+"' of type '"+it->second->getTypeName()+"' to type '"+std::string(typeid(TYPE).name())+"'");
+                std::shared_ptr<const Branch<TYPE>> branch = std::dynamic_pointer_cast<const Branch<TYPE>>(itCache->second);
+                if (not branch)
+                {
+                    throw std::runtime_error("Cannot cast cached branch of type '"+itCache->second->getTypeName()+"' to '"+(typeid(TYPE).name())+"'");
+                }
+                return *branch;
             }
+            if (_inputTreeBranches.find(name)==_inputTreeBranches.end())
+            {
+                throw std::runtime_error("Branch with name '"+name+"' does not exist!");
+            }
+            //TODO: get branch from tree
+            std::shared_ptr<Branch<TYPE>> branch(new BranchFromTTree<TYPE>(name,_tree));
+            
             return *branch;
+            
         }
         
         template<class TYPE>
         Branch<TYPE>& createBranch(const std::string& name)
         {
-            auto it = _branchMap.find(name);
-            if (it!=_branchMap.end())
+            auto it = _cacheBranchMap.find(name);
+            if (it!=_cacheBranchMap.end())
             {
                 throw std::runtime_error("Cannot create branch with name '"+name+"'. It does already exist!");
             }
-            if (_inputTreeBranches.find(name)!=_inputTreeBranches.end())
-            {
-                throw std::runtime_error("Branch with name '"+name+"' already exists in input tree!");
-            }
             
-            auto branch = Branch<TYPE>::createNewBranch(name,_tree);
-            _branchMap.emplace(std::make_pair(name,branch));
+            std::shared_ptr<Branch<TYPE>> branch(new BranchCached<TYPE>(name));
+            _cacheBranchMap.emplace(std::make_pair(name,branch));
             return *branch;
         }
 };
