@@ -48,6 +48,22 @@ void test_createExistingBranch()
     (void)testBranch;
 }
 
+void test_getBranchFromTree()
+{
+    TTree tree;
+    float value = 10;
+    tree.Branch("value",&value,"value/F");
+    float value2 = 10;
+    tree.Branch("value2",&value2,"value2/F");
+    styr::Event event(&tree);
+    const styr::Branch<float>& branch1 = event.getBranch<float>("value");
+    const styr::Branch<float>& branch2 = event.getBranch<float>("value");
+    const styr::Branch<float>& branch3 = event.getBranch<float>("value2");
+    ASSERT(&branch1==&branch2);
+    ASSERT(&branch1!=&branch3);
+    ASSERT(&branch2!=&branch3);
+}
+
 int main()
 {
     RUN_TEST(test_getNotExistingBranch);
@@ -55,5 +71,6 @@ int main()
     RUN_TEST(test_createExistingBranch);
     RUN_TEST(test_getExistingBranch);
     RUN_TEST(test_getExistingBranchWrongType);
+    RUN_TEST(test_getBranchFromTree);
     return 0;
 }

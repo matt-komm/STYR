@@ -18,7 +18,7 @@ class Event
         
         std::unordered_map<std::string, TBranch*> _inputTreeBranches;
         std::unordered_map<std::string, std::shared_ptr<const BranchBase>> _inputBranchMap;
-        std::unordered_map<std::string, std::shared_ptr<BranchBase>> _cacheBranchMap;
+        std::unordered_map<std::string, std::shared_ptr<BranchBase>> _outputBranchMap;
         
     public:
         Event(TTree* tree):
@@ -37,8 +37,9 @@ class Event
         }
         
         template<class TYPE>
-        const Branch<TYPE>& getBranch(const std::string& name) const
+        const Branch<TYPE>& getBranch(const std::string& name)
         {
+            //check if branch has already been loaded
             auto itInput = _inputBranchMap.find(name);
             if (itInput!=_inputBranchMap.end())
             {
@@ -49,8 +50,10 @@ class Event
                 } 
                 return *branch;
             }
-            auto itCache = _cacheBranchMap.find(name);
-            if (itCache!=_cacheBranchMap.end())
+            
+            //check if branch has been written by another module
+            auto itCache = _outputBranchMap.find(name);
+            if (itCache!=_outputBranchMap.end())
             {
                 std::shared_ptr<const Branch<TYPE>> branch = std::dynamic_pointer_cast<const Branch<TYPE>>(itCache->second);
                 if (not branch)
@@ -59,28 +62,30 @@ class Event
                 }
                 return *branch;
             }
-            if (_inputTreeBranches.find(name)==_inputTreeBranches.end())
+
+            //check if branch is in input tree and create it
+            auto itBranch = _inputTreeBranches.find(name);
+            if (itBranch == _inputTreeBranches.end())
             {
-                throw std::runtime_error("Branch with name '"+name+"' does not exist!");
+                throw std::runtime_error("Branch with name '"+name+"' not found in input tree");
             }
-            //TODO: get branch from tree
-            std::shared_ptr<Branch<TYPE>> branch(new BranchFromTTree<TYPE>(name,_tree));
             
+            const Branch<TYPE>* branch = new InputBranch<TYPE>(name,itBranch->second);
+            _inputBranchMap.emplace(name,branch);
             return *branch;
-            
         }
         
         template<class TYPE>
         Branch<TYPE>& createBranch(const std::string& name)
         {
-            auto it = _cacheBranchMap.find(name);
-            if (it!=_cacheBranchMap.end())
+            auto it = _outputBranchMap.find(name);
+            if (it!=_outputBranchMap.end())
             {
                 throw std::runtime_error("Cannot create branch with name '"+name+"'. It does already exist!");
             }
             
-            std::shared_ptr<Branch<TYPE>> branch(new BranchCached<TYPE>(name));
-            _cacheBranchMap.emplace(std::make_pair(name,branch));
+            std::shared_ptr<Branch<TYPE>> branch(new OutputBranch<TYPE>(name));
+            _outputBranchMap.emplace(std::make_pair(name,branch));
             return *branch;
         }
 };

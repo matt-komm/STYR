@@ -58,22 +58,22 @@ class Branch:
 template<class TYPE> const std::string Branch<TYPE>::typeName = typeid(TYPE).name();
 
 template<class TYPE>
-class BranchFromTTree:
+class InputBranch:
     public Branch<TYPE>
 {
     public:
-        BranchFromTTree(const std::string& name, TTree* _tree):
+        InputBranch(const std::string& name, TBranch* _branch):
             Branch<TYPE>(name)
         {
         }
 };
 
 template<class TYPE>
-class BranchCached:
+class OutputBranch:
     public Branch<TYPE>
 {
     public:
-        BranchCached(const std::string& name):
+        OutputBranch(const std::string& name):
             Branch<TYPE>(name)
         {
         }
