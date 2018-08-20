@@ -62,7 +62,6 @@ void test_readArrayFromTree()
             ASSERT_EQ(branch.get()[j],v);
         }
     }
-    
 }
 
 int main()

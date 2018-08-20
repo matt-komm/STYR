@@ -71,7 +71,8 @@ class Event
             }
             
             const Branch<TYPE>* branch = new InputBranch<TYPE>(name,itBranch->second);
-            _inputBranchMap.emplace(name,branch);
+            std::shared_ptr<const BranchBase> branchBase(branch);
+            _inputBranchMap.emplace(name,branchBase);
             return *branch;
         }
         
