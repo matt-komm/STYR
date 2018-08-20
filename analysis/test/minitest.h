@@ -118,6 +118,9 @@ void assert_eq(T lhs, T rhs, string loc) { if (!(lhs == rhs)) { make_error(lhs, 
 
 
 SUPPORT_ASSERT_EQ_ON(int)
+SUPPORT_ASSERT_EQ_ON(long)
+SUPPORT_ASSERT_EQ_ON(size_t)
+SUPPORT_ASSERT_EQ_ON(unsigned int)
 SUPPORT_ASSERT_EQ_ON(double)
 SUPPORT_ASSERT_EQ_ON(float)
 void assert_eq(bool lhs, bool rhs, string loc) { if (lhs != rhs) { make_error(bool_to_s(lhs), bool_to_s(rhs), loc); } }
