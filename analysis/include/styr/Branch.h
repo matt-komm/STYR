@@ -72,8 +72,9 @@ class InputBranch:
     public:
         InputBranch(const std::string& name, TBranch* _branch):
             Branch<TYPE>(name)
-        {
-            _branch->SetAddress(&_data);
+        {   
+            _branch->GetTree()->SetBranchAddress(name.c_str(),&_data);
+            //_branch->SetAddress(&_data);
             _leaf = _branch->GetLeaf(name.c_str());
         }
         

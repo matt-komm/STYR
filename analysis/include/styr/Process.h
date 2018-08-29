@@ -13,14 +13,15 @@ class Module;
 class Process
 {
     private:
-     
+        std::vector<Module*> modules_;
+        
     public:
         Process()
         {
         }
         
         void addModule(Module* module);
-        void processFile(TFile* file);
+        void processFile(TFile* file, const char* treeName);
 };
 
 }

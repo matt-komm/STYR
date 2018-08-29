@@ -69,7 +69,6 @@ class Event
             {
                 throw std::runtime_error("Branch with name '"+name+"' not found in input tree");
             }
-            
             const Branch<TYPE>* branch = new InputBranch<TYPE>(name,itBranch->second);
             std::shared_ptr<const BranchBase> branchBase(branch);
             _inputBranchMap.emplace(name,branchBase);
@@ -88,6 +87,13 @@ class Event
             std::shared_ptr<Branch<TYPE>> branch(new OutputBranch<TYPE>(name));
             _outputBranchMap.emplace(std::make_pair(name,branch));
             return *branch;
+        }
+        
+        ~Event()
+        {
+            _inputTreeBranches.clear();
+            _inputBranchMap.clear();
+            _outputBranchMap.clear();
         }
 };
 
