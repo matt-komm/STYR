@@ -17,7 +17,7 @@ void test_readBranchFromTree()
         std::vector<float> values;
         for (int j = 0; j < 10; ++j)
         {
-            value = -0.1*i*i+10.*j;
+            value = 1-0.1*i*i+10.*j;
             tree.Fill();
             values.push_back(value);
         }
@@ -44,7 +44,7 @@ void test_readArrayFromTree()
         size = i+1;
         for (int j = 0; j < size; ++j)
         {
-            value[j] = 0.5*i-0.1*j*j;
+            value[j] = 1+0.5*i-0.1*j*j;
         }
         
         tree.Fill();
@@ -58,7 +58,7 @@ void test_readArrayFromTree()
         
         for (int j = 0; j < size; ++j)
         {
-            float v = 0.5*i-0.1*j*j;
+            float v = 1+0.5*i-0.1*j*j;
             ASSERT_EQ(branch.get()[j],v);
         }
     }

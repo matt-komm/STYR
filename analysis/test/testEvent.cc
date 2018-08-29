@@ -16,17 +16,22 @@ void test_createBranch()
     TTree tree;
     styr::Event event(&tree);
     styr::Branch<int>& testBranch = event.createBranch<int>("test");
+    testBranch.get()=10;
     (void)testBranch;
 }
 
 void test_getExistingBranch()
 {
-    TTree tree;
-    styr::Event event(&tree);
-    std::runtime_error err("");
-    event.createBranch<int>("test");
-    const styr::Branch<int>& testBranch2 = event.getBranch<int>("test");
-    (void)testBranch2;
+    for (int j = 0; j < 10; ++j)
+    {
+        TTree tree;
+        styr::Event event(&tree);
+        std::runtime_error err("");
+        styr::Branch<int>& testBranch1 = event.createBranch<int>("test");
+        const styr::Branch<int>& testBranch2 = event.getBranch<int>("test");
+        testBranch1.get()=(int)1+j-0.2*j*j;
+        ASSERT_EQ(testBranch2.get(),(int)(1+j-0.2*j*j));
+    }
 }
 
 void test_getExistingBranchWrongType()

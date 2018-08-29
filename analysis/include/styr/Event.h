@@ -7,6 +7,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 namespace styr
 {
@@ -15,6 +16,7 @@ class Event
 {
     private:
         TTree* _tree;
+        int64_t _entry;
         
         std::unordered_map<std::string, TBranch*> _inputTreeBranches;
         std::unordered_map<std::string, std::shared_ptr<const BranchBase>> _inputBranchMap;
@@ -22,8 +24,10 @@ class Event
         
     public:
         Event(TTree* tree):
-            _tree(tree)
+            _tree(tree),
+            _entry(0)
         {
+            _tree->GetEntry(_entry);
             auto array = _tree->GetListOfBranches();
             for (int i = 0; i < array->GetSize(); ++i)
             {
@@ -34,6 +38,33 @@ class Event
                     _inputTreeBranches[branch->GetName()] = branch;
                 }
             }
+        }
+        
+        int64_t next()
+        {
+            _entry+=1;
+            if (_entry>=_tree->GetEntries())
+            {
+                return -1;
+            }
+            _tree->GetEntry(_entry);
+            return _entry;
+        }
+        
+        inline int64_t entry() const
+        {
+            return _entry;
+        }
+        
+        inline int64_t getEntry(int64_t entry)
+        {
+            if (entry>=_tree->GetEntries())
+            {
+                return -1;
+            }
+            _entry = entry;
+            _tree->GetEntry(_entry);
+            return _entry;
         }
         
         template<class TYPE>
@@ -72,6 +103,7 @@ class Event
             const Branch<TYPE>* branch = new InputBranch<TYPE>(name,itBranch->second);
             std::shared_ptr<const BranchBase> branchBase(branch);
             _inputBranchMap.emplace(name,branchBase);
+            _tree->GetEntry(_entry);
             return *branch;
         }
         
