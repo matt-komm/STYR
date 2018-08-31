@@ -13,18 +13,20 @@ class MyModuleProcess:
 {
     protected:
         const std::vector<float> _values;
+        const std::string _valueName;
         size_t _entry;
     public:
-        MyModuleProcess(const char* name, const std::vector<float>& values):
+        MyModuleProcess(const char* name, const std::vector<float>& values, const std::string valueName):
             Module(name),
             _values(values),
+            _valueName(valueName),
             _entry(0)
         {
         }
         
         virtual void analyze(styr::Event& event) override
         {
-            const styr::Branch<float>& value = event.getBranch<float>("value");
+            const styr::Branch<float>& value = event.getBranch<float>(_valueName.c_str());
             if (_entry>=_values.size())
             {
                 throw std::runtime_error("Index outside of reference value list");
@@ -40,28 +42,33 @@ class MyModuleProcess:
 
 void test_processFile()
 {
-    std::vector<float> values;
+    for (int i = 0; i < 10; ++i)
     {
-        TFile f("test.root","RECREATE");
-        TTree tree("tree","tree");
-        tree.SetDirectory(&f);
-        float value = 10;
-        tree.Branch("value",&value,"value/F");
-        
-        for (int i = 0; i < 10; ++i)
+        std::vector<float> values;
+        std::string treeName = "tree"+std::to_string(i);
+        std::string valueName = "value"+std::to_string(i);
         {
-            value = 1.+i*0.2-0.1*i*i;
-            tree.Fill();
-            values.push_back(value);
+            TFile f("test.root","RECREATE");
+            TTree tree(treeName.c_str(),treeName.c_str());
+            tree.SetDirectory(&f);
+            float value = i;
+            tree.Branch(valueName.c_str(),&value);
+            
+            for (int j = 0; j < 10; ++j)
+            {
+                value = 1.+i*0.2-0.1*i*i-2.*j;
+                tree.Fill();
+                values.push_back(value);
+            }
+            tree.Write();
+            f.Close();
         }
-        tree.Write();
-        f.Close();
+        styr::Process process;
+        MyModuleProcess module("module",values,valueName);
+        process.addModule(&module);
+        TFile f("test.root");
+        process.processFile(&f,treeName.c_str());
     }
-    styr::Process process;
-    MyModuleProcess module("module",values);
-    process.addModule(&module);
-    TFile f("test.root");
-    process.processFile(&f,"tree");
 }
 
 int main()
