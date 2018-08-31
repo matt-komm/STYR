@@ -68,7 +68,7 @@ class Event
         }
         
         template<class TYPE>
-        const Branch<TYPE>& getBranch(const std::string& name)
+        ConstBranchPtr<TYPE> getBranch(const std::string& name)
         {
             //check if branch has already been loaded
             auto itInput = _inputBranchMap.find(name);
@@ -79,7 +79,7 @@ class Event
                 {
                     throw std::runtime_error("Cannot cast input branch of type '"+itInput->second->getTypeName()+"' to '"+(typeid(TYPE).name())+"'");
                 } 
-                return *branch;
+                return branch;
             }
             
             //check if branch has been written by another module
@@ -91,7 +91,7 @@ class Event
                 {
                     throw std::runtime_error("Cannot cast cached branch of type '"+itCache->second->getTypeName()+"' to '"+(typeid(TYPE).name())+"'");
                 }
-                return *branch;
+                return branch;
             }
 
             //check if branch is in input tree and create it
@@ -100,15 +100,15 @@ class Event
             {
                 throw std::runtime_error("Branch with name '"+name+"' not found in input tree");
             }
-            const Branch<TYPE>* branch = new InputBranch<TYPE>(name,itBranch->second);
-            std::shared_ptr<const BranchBase> branchBase(branch);
+            std::shared_ptr<const Branch<TYPE>> branch(new InputBranch<TYPE>(name,itBranch->second));
+            std::shared_ptr<const BranchBase> branchBase = std::dynamic_pointer_cast<const BranchBase>(branch);
             _inputBranchMap.emplace(name,branchBase);
             _tree->GetEntry(_entry);
-            return *branch;
+            return branch;
         }
         
         template<class TYPE>
-        Branch<TYPE>& createBranch(const std::string& name)
+        BranchPtr<TYPE> createBranch(const std::string& name)
         {
             auto it = _outputBranchMap.find(name);
             if (it!=_outputBranchMap.end())
@@ -118,7 +118,7 @@ class Event
             
             std::shared_ptr<Branch<TYPE>> branch(new OutputBranch<TYPE>(name));
             _outputBranchMap.emplace(std::make_pair(name,branch));
-            return *branch;
+            return branch;
         }
         
         ~Event()

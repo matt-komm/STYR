@@ -26,12 +26,12 @@ class MyModuleProcess:
         
         virtual void analyze(styr::Event& event) override
         {
-            const styr::Branch<float>& value = event.getBranch<float>(_valueName.c_str());
+            auto value = event.getBranch<float>(_valueName.c_str());
             if (_entry>=_values.size())
             {
                 throw std::runtime_error("Index outside of reference value list");
             }
-            ASSERT_EQ(_values[_entry],value.get());
+            ASSERT_EQ(_values[_entry],value->get());
             _entry++;
         }        
         

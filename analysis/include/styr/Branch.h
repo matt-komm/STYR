@@ -62,6 +62,13 @@ class Branch:
 
 template<class TYPE> const std::string Branch<TYPE>::typeName = typeid(TYPE).name();
 
+
+template<class TYPE>
+using BranchPtr = std::shared_ptr<Branch<TYPE>>;
+
+template<class TYPE>
+using ConstBranchPtr = std::shared_ptr<const Branch<TYPE>>;
+
 template<class TYPE>
 class InputBranch:
     public Branch<TYPE>

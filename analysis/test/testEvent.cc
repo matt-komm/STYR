@@ -15,8 +15,8 @@ void test_createBranch()
 {
     TTree tree;
     styr::Event event(&tree);
-    styr::Branch<int>& testBranch = event.createBranch<int>("test");
-    testBranch.get()=10;
+    auto testBranch = event.createBranch<int>("test");
+    testBranch->get()=10;
     (void)testBranch;
 }
 
@@ -27,10 +27,10 @@ void test_getExistingBranch()
         TTree tree;
         styr::Event event(&tree);
         std::runtime_error err("");
-        styr::Branch<int>& testBranch1 = event.createBranch<int>("test");
-        const styr::Branch<int>& testBranch2 = event.getBranch<int>("test");
-        testBranch1.get()=(int)1+j-0.2*j*j;
-        ASSERT_EQ(testBranch2.get(),(int)(1+j-0.2*j*j));
+        auto testBranch1 = event.createBranch<int>("test");
+        auto testBranch2 = event.getBranch<int>("test");
+        testBranch1->get()=(int)1+j-0.2*j*j;
+        ASSERT_EQ(testBranch2->get(),(int)(1+j-0.2*j*j));
     }
 }
 
@@ -47,7 +47,7 @@ void test_createExistingBranch()
 {
     TTree tree;
     styr::Event event(&tree);
-    styr::Branch<int>& testBranch = event.createBranch<int>("test");
+    auto testBranch = event.createBranch<int>("test");
     std::runtime_error err("");
     ASSERT_RAISE_A(std::runtime_error,err,event.createBranch<int>("test"));
     (void)testBranch;
@@ -61,12 +61,12 @@ void test_getBranchFromTree()
     float value2 = 10;
     tree.Branch("value2",&value2,"value2/F");
     styr::Event event(&tree);
-    const styr::Branch<float>& branch1 = event.getBranch<float>("value");
-    const styr::Branch<float>& branch2 = event.getBranch<float>("value");
-    const styr::Branch<float>& branch3 = event.getBranch<float>("value2");
-    ASSERT(&branch1==&branch2);
-    ASSERT(&branch1!=&branch3);
-    ASSERT(&branch2!=&branch3);
+    auto branch1 = event.getBranch<float>("value");
+    auto branch2 = event.getBranch<float>("value");
+    auto branch3 = event.getBranch<float>("value2");
+    ASSERT(branch1.get()==branch2.get());
+    ASSERT(branch1.get()!=branch3.get());
+    ASSERT(branch2.get()!=branch3.get());
 }
 
 int main()

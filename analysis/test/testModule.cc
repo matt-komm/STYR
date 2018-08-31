@@ -18,8 +18,8 @@ class MyModuleInLoop:
         
         virtual void analyze(styr::Event& event) override
         {
-            const styr::Branch<float>& value = event.getBranch<float>("value");
-            ASSERT_EQ(ref_,value.get());
+            auto value = event.getBranch<float>("value");
+            ASSERT_EQ(ref_,value->get());
         }        
         
         virtual ~MyModuleInLoop()
@@ -32,7 +32,7 @@ class MyModuleInBegin:
 {
     protected:
         float& ref_;
-        const styr::Branch<float>* branch_;
+        styr::ConstBranchPtr<float> branch_;
     public:
         MyModuleInBegin(const char* name, float& ref):
             Module(name),
@@ -43,7 +43,7 @@ class MyModuleInBegin:
         
         virtual void beginFile(TFile*, styr::Event& event)
         {
-            branch_ = &event.getBranch<float>("value");
+            branch_ = event.getBranch<float>("value");
         }
         
         virtual void analyze(styr::Event&) override
