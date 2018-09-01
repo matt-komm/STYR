@@ -1,12 +1,14 @@
 #ifndef STYR_BRANCH_H
 #define STYR_BRANCH_H
 
+#include "TTree.h"
+#include "TLeaf.h"
+
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <iostream>
 
-#include "TTree.h"
-#include "TLeaf.h"
 
 namespace styr
 {
@@ -56,8 +58,6 @@ class Branch:
         virtual TYPE& get() = 0;
         virtual const TYPE& get() const = 0;
         virtual size_t size() const = 0;
-        
-        
 };
 
 template<class TYPE> const std::string Branch<TYPE>::typeName = typeid(TYPE).name();
@@ -102,6 +102,47 @@ class InputBranch:
 };
 
 template<class TYPE>
+class InputBranch<std::vector<TYPE>>:
+    public Branch<std::vector<TYPE>>
+{
+    protected:
+        mutable std::vector<TYPE> _data;
+        TBranch* _branch;
+        TLeaf* _leaf;
+    public:
+        InputBranch(const std::string& name, TBranch* branch):
+            Branch<std::vector<TYPE>>(name),
+            _data(10), //buffer
+            _branch(branch)
+        {   
+            std::cout<<"create array input: "<<name<<std::endl;
+            _branch->SetAddress(_data.data());
+            _leaf = _branch->GetLeaf(name.c_str());
+        }
+        
+        virtual std::vector<TYPE>& get()
+        {
+             return _data;
+        }
+        
+        virtual const std::vector<TYPE>& get() const
+        {
+            return _data;
+        }
+        
+        virtual size_t size() const
+        {
+            if (_leaf->GetLen()>=(int)_data.size())
+            {   
+                //reallocate
+                _data.resize(_leaf->GetLen()*2);
+                _branch->SetAddress(_data.data());
+            }
+            return _leaf->GetLen();
+        }
+};
+
+template<class TYPE>
 class OutputBranch:
     public Branch<TYPE>
 {
@@ -129,6 +170,37 @@ class OutputBranch:
             return 1;
         }
 };
+
+template<class TYPE>
+class OutputBranch<std::vector<TYPE>>:
+    public Branch<std::vector<TYPE>>
+{
+    protected:
+        std::vector<TYPE> _data;
+        
+    public:
+        OutputBranch(const std::string& name):
+            Branch<std::vector<TYPE>>(name)
+        {
+            std::cout<<"create array output: "<<name<<std::endl;
+        }
+        
+        virtual std::vector<TYPE>& get()
+        {
+            return _data;
+        }
+        
+        virtual const std::vector<TYPE>& get() const
+        {
+            return _data;
+        }
+        
+        virtual size_t size() const
+        {
+            return _data.size();
+        }
+};
+
 
 }
 

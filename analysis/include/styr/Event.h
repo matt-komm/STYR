@@ -121,6 +121,7 @@ class Event
             return branch;
         }
         
+        
         ~Event()
         {
             _inputTreeBranches.clear();
