@@ -216,16 +216,14 @@ void test_createAndGetArrayBranch()
 
 int main()
 {
-    /*
     RUN_TEST(test_getNotExistingBranch);
     RUN_TEST(test_createBranch);
     RUN_TEST(test_createExistingBranch);
     RUN_TEST(test_getExistingBranch);
     RUN_TEST(test_getExistingBranchWrongType);
-    RUN_TEST(test_getBranchFromTree);
     RUN_TEST(test_createAndGetValueBranch);
     RUN_TEST(test_createAndGetArrayBranch);
-    */
+    RUN_TEST(test_getBranchFromTree);
     RUN_TEST(test_getBranchArrayFromTree);
     return 0;
 }
