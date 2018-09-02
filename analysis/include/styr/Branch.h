@@ -107,19 +107,18 @@ class InputBranch<std::vector<TYPE>>:
 {
     protected:
         mutable std::vector<TYPE> _data;
-        TBranch* _branch;
+        mutable TBranch* _branch;
         TLeaf* _leaf;
     public:
         InputBranch(const std::string& name, TBranch* branch):
             Branch<std::vector<TYPE>>(name),
-            _data(10), //buffer
             _branch(branch)
         {   
-            std::cout<<"create array input: "<<name<<std::endl;
-            _branch->SetAddress(_data.data());
             _leaf = _branch->GetLeaf(name.c_str());
+            _data = std::vector<TYPE>(_leaf->GetLeafCount()->GetMaximum());
+            _branch->SetAddress(_data.data());
         }
-        
+       
         virtual std::vector<TYPE>& get()
         {
              return _data;
@@ -132,12 +131,6 @@ class InputBranch<std::vector<TYPE>>:
         
         virtual size_t size() const
         {
-            if (_leaf->GetLen()>=(int)_data.size())
-            {   
-                //reallocate
-                _data.resize(_leaf->GetLen()*2);
-                _branch->SetAddress(_data.data());
-            }
             return _leaf->GetLen();
         }
 };

@@ -56,6 +56,11 @@ class Event
             return _entry;
         }
         
+        inline int64_t entries() const
+        {
+            return _tree->GetEntries();
+        }
+        
         inline int64_t getEntry(int64_t entry)
         {
             if (entry>=_tree->GetEntries())
