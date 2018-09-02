@@ -3,6 +3,9 @@
 #include "styr/Branch.h"
 
 #include "TLeaf.h"
+#include "TTree.h"
+#include "TTreeReader.h"
+
 
 #include <vector>
 
@@ -22,10 +25,11 @@ void test_readBranchFromTree()
             values.push_back(value);
         }
         ASSERT_EQ((size_t)values.size(),(size_t)tree.GetEntries());
-        styr::InputBranch<float> branch("value",tree.FindBranch("value"));
+        TTreeReader reader(&tree);
+        styr::InputBranch<float> branch("value",reader);
         for (size_t entry = 0; entry< values.size(); ++entry)
         {
-            tree.GetEntry(entry);
+            reader.SetEntry(entry);
             ASSERT_EQ(branch.get(),values[entry]);
         }
     }
@@ -49,11 +53,11 @@ void test_readArrayFromTree()
         
         tree.Fill();
     }
-    
-    styr::InputBranch<float[20]> branch("value",tree.FindBranch("value"));
+    TTreeReader reader(&tree);
+    styr::InputBranch<std::vector<float>> branch("value",reader);
     for (int i = 0; i < 10; ++i)
     {
-        tree.GetEntry(i);
+        reader.SetEntry(i);
         ASSERT_EQ((int)branch.size(),i+1);
         
         for (int j = 0; j < size; ++j)
@@ -61,6 +65,7 @@ void test_readArrayFromTree()
             float v = 1+0.5*i-0.1*j*j;
             ASSERT_EQ(branch.get()[j],v);
         }
+        
     }
 }
 

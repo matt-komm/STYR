@@ -1,9 +1,10 @@
 #ifndef STYR_EVENT_H
 #define STYR_EVENT_H
 
-#include "styr/Branch.h"
-
 #include "TTree.h"
+#include "TTreeReader.h"
+
+#include "styr/Branch.h"
 
 #include <string>
 #include <unordered_map>
@@ -16,6 +17,7 @@ class Event
 {
     private:
         TTree* _tree;
+        TTreeReader _treeReader;
         int64_t _entry;
         
         std::unordered_map<std::string, TBranch*> _inputTreeBranches;
@@ -25,9 +27,9 @@ class Event
     public:
         Event(TTree* tree):
             _tree(tree),
-            _entry(0)
+            _treeReader(tree),
+            _entry(-1)
         {
-            _tree->GetEntry(_entry);
             auto array = _tree->GetListOfBranches();
             for (int i = 0; i < array->GetSize(); ++i)
             {
@@ -47,8 +49,12 @@ class Event
             {
                 return -1;
             }
-            _tree->GetEntry(_entry);
-            return _entry;
+            if (_treeReader.Next())
+            {
+                _entry = _treeReader.GetCurrentEntry();
+                return _entry;
+            }
+            return -1;
         }
         
         inline int64_t entry() const
@@ -64,6 +70,7 @@ class Event
             }
             _entry = entry;
             _tree->GetEntry(_entry);
+            _treeReader.SetEntry(_entry);
             return _entry;
         }
         
@@ -100,10 +107,11 @@ class Event
             {
                 throw std::runtime_error("Branch with name '"+name+"' not found in input tree");
             }
-            std::shared_ptr<const Branch<TYPE>> branch(new InputBranch<TYPE>(name,itBranch->second));
+            std::shared_ptr<const Branch<TYPE>> branch(new InputBranch<TYPE>(name,_treeReader));
             std::shared_ptr<const BranchBase> branchBase = std::dynamic_pointer_cast<const BranchBase>(branch);
             _inputBranchMap.emplace(name,branchBase);
-            _tree->GetEntry(_entry);
+            //_tree->GetEntry(_entry);
+            //_treeReader.SetEntry(_entry);
             return branch;
         }
         

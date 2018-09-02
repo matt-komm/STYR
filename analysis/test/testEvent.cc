@@ -68,6 +68,7 @@ void test_getBranchFromTree()
         auto branch2 = event.getBranch<float>("value");
         auto branch3 = event.getBranch<float>("value2");
         
+        event.next();
         ASSERT_EQ(branch1->size(),(size_t)1);
         ASSERT_EQ(branch2->size(),(size_t)1);
         ASSERT_EQ(branch3->size(),(size_t)1);
@@ -76,9 +77,45 @@ void test_getBranchFromTree()
         ASSERT(branch1.get()!=branch3.get());
         ASSERT(branch2.get()!=branch3.get());
         
+        ASSERT_EQ(branch1->get(),value);
         ASSERT_EQ(branch1->get(),branch2->get());
         ASSERT(branch1->get()!=branch3->get());
         ASSERT(branch2->get()!=branch3->get());
+    }
+}
+
+void test_getArrayBranchFromTree()
+{
+    for (int i = 0; i < 10; ++i)
+    {
+        TTree tree;
+        
+        int size = 1+i;
+        float value[20];
+        tree.Branch("size",&size,"size/I");
+        tree.Branch("value",value,"value[size]/F");
+        for (int j = 0; j < size; ++j)
+        {
+            value[j] = 1+5*j-0.2*i*i+2*i;
+        }
+        
+        tree.Fill();
+        
+        styr::Event event(&tree);
+        auto branch1 = event.getBranch<std::vector<float>>("value");
+        auto branch2 = event.getBranch<std::vector<float>>("value");
+        event.next();
+        
+        ASSERT_EQ(branch1->size(),(size_t)size);
+        ASSERT_EQ(branch2->size(),(size_t)size);
+        
+        
+        ASSERT(branch1.get()==branch2.get());
+        
+        for (int j = 0; j < size; ++j)
+        {
+            ASSERT_EQ(branch1->get()[j],branch2->get()[j]);
+        }
     }
 }
 
@@ -117,6 +154,7 @@ void test_createAndGetArrayBranch()
         branch1->get()=valueArray;
         values.push_back(valueArray);
     }
+    
     for (int i = 0; i < 10; ++i)
     {
         auto branch2 = event.getBranch<std::vector<float>>("valueList"+std::to_string(i));
@@ -125,11 +163,13 @@ void test_createAndGetArrayBranch()
         {
             ASSERT_EQ(branch2->get()[j],values[i][j]);
         }
+        
     }
 }
 
 int main()
 {
+    
     RUN_TEST(test_getNotExistingBranch);
     RUN_TEST(test_createBranch);
     RUN_TEST(test_createExistingBranch);
@@ -138,5 +178,8 @@ int main()
     RUN_TEST(test_getBranchFromTree);
     RUN_TEST(test_createAndGetValueBranch);
     RUN_TEST(test_createAndGetArrayBranch);
+    
+    RUN_TEST(test_getArrayBranchFromTree);
+    RUN_TEST(test_getBranchFromTree);
     return 0;
 }

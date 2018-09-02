@@ -15,6 +15,7 @@ class MyModuleProcess:
         const std::vector<float> _values;
         const std::string _valueName;
         size_t _entry;
+        styr::ConstBranchPtr<float> _value;
     public:
         MyModuleProcess(const char* name, const std::vector<float>& values, const std::string valueName):
             Module(name),
@@ -22,17 +23,26 @@ class MyModuleProcess:
             _valueName(valueName),
             _entry(0)
         {
+            
+        }
+        
+        virtual void beginFile(TFile* file, styr::Event& event)
+        {
+            _value = event.getBranch<float>(_valueName.c_str());
         }
         
         virtual void analyze(styr::Event& event) override
         {
-            auto value = event.getBranch<float>(_valueName.c_str());
+            
             if (_entry>=_values.size())
             {
                 throw std::runtime_error("Index outside of reference value list");
             }
-            ASSERT_EQ(_values[_entry],value->get());
+            std::cout<<_value->get()<<std::endl;
+            /*
+            ASSERT_EQ(_values[_entry],_value->get());
             _entry++;
+            */
         }        
         
         virtual ~MyModuleProcess()

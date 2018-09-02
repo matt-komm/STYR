@@ -2,7 +2,9 @@
 #define STYR_BRANCH_H
 
 #include "TTree.h"
-#include "TLeaf.h"
+#include "TTreeReader.h"
+#include "TTreeReaderValue.h"
+#include "TTreeReaderArray.h"
 
 #include <memory>
 #include <string>
@@ -74,30 +76,27 @@ class InputBranch:
     public Branch<TYPE>
 {
     protected:
-        TYPE _data;
-        TLeaf* _leaf;
+        mutable TTreeReaderValue<TYPE> _data;
     public:
-        InputBranch(const std::string& name, TBranch* _branch):
-            Branch<TYPE>(name)
+        InputBranch(const std::string& name, TTreeReader& _treeReader):
+            Branch<TYPE>(name),
+            _data(_treeReader,name.c_str())
         {   
-            _branch->GetTree()->SetBranchAddress(name.c_str(),&_data);
-            //_branch->SetAddress(&_data);
-            _leaf = _branch->GetLeaf(name.c_str());
         }
         
         virtual TYPE& get()
         {
-             return _data;
+             return *_data;
         }
         
         virtual const TYPE& get() const
         {
-            return _data;
+            return *_data;
         }
         
         virtual size_t size() const
         {
-            return _leaf->GetLen();
+            return 1;
         }
 };
 
@@ -106,39 +105,50 @@ class InputBranch<std::vector<TYPE>>:
     public Branch<std::vector<TYPE>>
 {
     protected:
-        mutable std::vector<TYPE> _data;
-        TBranch* _branch;
-        TLeaf* _leaf;
+        const TTreeReader* _reader;
+        mutable TTreeReaderArray<TYPE> _data;
+        mutable std::vector<TYPE> _buffer;
+        mutable int _entry;
     public:
-        InputBranch(const std::string& name, TBranch* branch):
+        InputBranch(const std::string& name, TTreeReader& reader):
             Branch<std::vector<TYPE>>(name),
-            _data(10), //buffer
-            _branch(branch)
+            _reader(&reader),
+            _data(reader,name.c_str()),
+            _entry(-1)
         {   
-            std::cout<<"create array input: "<<name<<std::endl;
-            _branch->SetAddress(_data.data());
-            _leaf = _branch->GetLeaf(name.c_str());
         }
         
         virtual std::vector<TYPE>& get()
         {
-             return _data;
+            if (_entry<0 or _entry!=_reader->GetCurrentEntry())
+            {
+                _buffer.resize(this->size());
+                for (size_t i = 0; i < _buffer.size(); ++i)
+                {
+                    _buffer[i] = _data[i];
+                }
+                _entry = _reader->GetCurrentEntry();
+            }
+            return _buffer;
         }
         
         virtual const std::vector<TYPE>& get() const
         {
-            return _data;
+            if (_entry<0 or _entry!=_reader->GetCurrentEntry())
+            {
+                _buffer.resize(this->size());
+                for (size_t i = 0; i < _buffer.size(); ++i)
+                {
+                    _buffer[i] = _data.At(i);
+                }
+                _entry = _reader->GetCurrentEntry();
+            }
+            return _buffer;
         }
         
         virtual size_t size() const
         {
-            if (_leaf->GetLen()>=(int)_data.size())
-            {   
-                //reallocate
-                _data.resize(_leaf->GetLen()*2);
-                _branch->SetAddress(_data.data());
-            }
-            return _leaf->GetLen();
+            return _data.GetSize();
         }
 };
 
@@ -182,7 +192,6 @@ class OutputBranch<std::vector<TYPE>>:
         OutputBranch(const std::string& name):
             Branch<std::vector<TYPE>>(name)
         {
-            std::cout<<"create array output: "<<name<<std::endl;
         }
         
         virtual std::vector<TYPE>& get()
