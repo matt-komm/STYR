@@ -7,11 +7,13 @@ add_definitions(-Wextra)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
 find_package(ROOT REQUIRED)
 find_package(Delphes REQUIRED)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include SYSTEM ${ROOT_INCLUDE_DIR} ${DELPHES_INCLUDE_DIR})
+set(STYR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${STYR_INCLUDE_DIR} SYSTEM ${ROOT_INCLUDE_DIR} ${DELPHES_INCLUDE_DIR})
 
 set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Process.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Event.h  
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Module.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/LinkDef.h
 )
 
@@ -19,7 +21,8 @@ add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dict.C 
     COMMAND ${ROOT_DICT_EXECUTABLE} 
         -f ${CMAKE_CURRENT_BINARY_DIR}/dict.C 
-        -I${CMAKE_CURRENT_SOURCE_DIR}/include
+        -I${STYR_INCLUDE_DIR}
+        -I${DELPHES_INCLUDE_DIR}
         -c ${HEADER_FILES_FOR_DICT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "generating dictionaries"
@@ -49,4 +52,8 @@ if (ENABLE_TEST)
     
     add_subdirectory(test)
 endif (ENABLE_TEST)
+
+
+add_subdirectory(plugins)
+
 
