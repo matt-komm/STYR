@@ -26,9 +26,9 @@ void Process::processFile(TFile* file, const char* treeName)
     {
         throw std::runtime_error("Error - cannot find tree with name'"+std::string(treeName)+"' in file '"+std::string(file->GetName())+"'");
     }
-    tree->GetEntry(0);
+    //tree->GetEntry(0);
     Event event(tree);
-    for (auto& module: modules_)
+    for (auto module: modules_)
     {
         if (not module)
         {
@@ -36,16 +36,16 @@ void Process::processFile(TFile* file, const char* treeName)
         }
         module->beginFile(file,event);
     }
-    for (int64_t entry = 0; entry < tree->GetEntries(); ++entry)
+    for (int64_t entry = 0; entry < std::min<int>(10,tree->GetEntries()); ++entry)
     {
         tree->GetEntry(entry);
-        for (auto& module: modules_)
+        for (auto module: modules_)
         {
             module->analyze(event);
         }
     }
     
-    for (auto& module: modules_)
+    for (auto module: modules_)
     {
         if (not module)
         {

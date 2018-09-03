@@ -19,15 +19,19 @@ class JetSelection:
         {
         }
         
-        virtual void beginFile(TFile*, styr::Event& event)
+        virtual void beginFile(const TFile*,styr::Event& event) override
         {
             _jets = event.getBranch<std::vector<Jet>>("Jet");
         }
         
         virtual void analyze(styr::Event&) override
         {
-            std::cout<<"process"<<std::endl;
             std::cout<<_jets->size()<<std::endl;
+            const std::vector<Jet>& jets = _jets->get();
+            for (size_t i = 0; i < _jets->size(); ++i)
+            {
+                std::cout<<"   "<<i<<": "<<jets[i].PT<<std::endl;
+            }
         }        
         
         virtual ~JetSelection()

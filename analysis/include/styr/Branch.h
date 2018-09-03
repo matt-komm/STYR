@@ -3,6 +3,8 @@
 
 #include "TTree.h"
 #include "TLeaf.h"
+#include "TBranchElement.h"
+#include "TClonesArray.h"
 
 #include <memory>
 #include <string>
@@ -103,32 +105,78 @@ class InputBranch<std::vector<TYPE>>:
     public Branch<std::vector<TYPE>>
 {
     protected:
-        std::vector<TYPE> _data;
+        mutable std::vector<TYPE> _data;
         TBranch* _branch;
         TLeaf* _leaf;
+        TBranchElement* _branchElement;
+        TClonesArray* _array;
     public:
         InputBranch(const std::string& name, TBranch* branch):
             Branch<std::vector<TYPE>>(name),
-            _branch(branch)
+            _branch(branch),
+            _leaf(nullptr),
+            _branchElement(nullptr),
+            _array(nullptr)
         {   
-            _leaf = _branch->GetLeaf(name.c_str());
-            _data = std::vector<TYPE>(_leaf->GetLeafCount()->GetMaximum());
-            _branch->SetAddress(_data.data());
+            _branchElement = dynamic_cast<TBranchElement*>(branch);
+            if (_branchElement)
+            {
+                _data = std::vector<TYPE>(_branchElement->GetMaximum());
+                _array = new TClonesArray(_branchElement->GetClonesName());
+                _branchElement->SetAddress(&_array);
+            }
+            else
+            {
+                if (_branch->GetNleaves()==0)
+                {
+                    throw std::runtime_error("No leaf found for branch: "+name);
+                }
+                _leaf = dynamic_cast<TLeaf*>(_branch->GetListOfLeaves()->At(0));
+                if (not _leaf)
+                {
+                    throw std::runtime_error("Failed to get leaf for branch: "+name);
+                }
+                TLeaf* leafCounter = _leaf->GetLeafCount();
+                if (not leafCounter)
+                {
+                    throw std::runtime_error("Failed to retrive counter leaf for branch: "+name);
+                }
+                _data = std::vector<TYPE>(_leaf->GetLeafCount()->GetMaximum());
+                _branch->SetAddress(_data.data());
+            }
         }
        
         virtual std::vector<TYPE>& get()
-        {
-             return _data;
+        {   
+            if (_branchElement)
+            {
+                for (size_t i = 0; i < this->size(); ++i)
+                {
+                    _data[i] = *(TYPE*)_array->At(i);
+                }
+            }
+            return _data;
         }
         
         virtual const std::vector<TYPE>& get() const
         {
+            if (_branchElement)
+            {
+                for (size_t i = 0; i < this->size(); ++i)
+                {
+                    _data[i] = *(TYPE*)_array->At(i);
+                }
+            }
             return _data;
         }
         
         virtual size_t size() const
         {
-            return _leaf->GetLen();
+            if (_leaf) return _leaf->GetLen();
+            else if (_branchElement) return _branchElement->GetNdata();
+            throw std::runtime_error("Unclear how to retrive size for branch: "+this->getName());
+            return -1;
+            
         }
 };
 
@@ -172,7 +220,6 @@ class OutputBranch<std::vector<TYPE>>:
         OutputBranch(const std::string& name):
             Branch<std::vector<TYPE>>(name)
         {
-            std::cout<<"create array output: "<<name<<std::endl;
         }
         
         virtual std::vector<TYPE>& get()

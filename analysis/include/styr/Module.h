@@ -22,8 +22,8 @@ class Module
     
         virtual void analyze(Event&) = 0;
         
-        virtual void beginFile(const TFile*,Event&) {}
-        virtual void endFile(const TFile*,Event&) {}
+        virtual void beginFile(const TFile*,styr::Event&) {}
+        virtual void endFile(const TFile*,styr::Event&) {}
         
         virtual void beginJob() {}
         virtual void endJob() {}
