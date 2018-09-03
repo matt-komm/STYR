@@ -50,7 +50,7 @@ void test_readArrayFromTree()
         tree.Fill();
     }
     
-    styr::InputBranch<float[20]> branch("value",tree.FindBranch("value"));
+    styr::InputBranch<std::vector<float>> branch("value",tree.FindBranch("value"));
     for (int i = 0; i < 10; ++i)
     {
         tree.GetEntry(i);

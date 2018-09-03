@@ -75,14 +75,11 @@ class InputBranch:
 {
     protected:
         TYPE _data;
-        TLeaf* _leaf;
     public:
         InputBranch(const std::string& name, TBranch* _branch):
             Branch<TYPE>(name)
         {   
             _branch->GetTree()->SetBranchAddress(name.c_str(),&_data);
-            //_branch->SetAddress(&_data);
-            _leaf = _branch->GetLeaf(name.c_str());
         }
         
         virtual TYPE& get()
@@ -97,7 +94,7 @@ class InputBranch:
         
         virtual size_t size() const
         {
-            return _leaf->GetLen();
+            return 1;
         }
 };
 
@@ -106,8 +103,8 @@ class InputBranch<std::vector<TYPE>>:
     public Branch<std::vector<TYPE>>
 {
     protected:
-        mutable std::vector<TYPE> _data;
-        mutable TBranch* _branch;
+        std::vector<TYPE> _data;
+        TBranch* _branch;
         TLeaf* _leaf;
     public:
         InputBranch(const std::string& name, TBranch* branch):
