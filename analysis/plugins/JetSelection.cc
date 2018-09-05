@@ -25,7 +25,7 @@ class JetSelection:
         JetSelection():
             styr::Module(""),
             _minJetPt(40.),
-            _maxJetEta(4.7),
+            _maxJetEta(4.0),
             _minDR(0.4)
         {
         }
@@ -72,6 +72,7 @@ class JetSelection:
                         minDR = std::min(minDR,dR);
                     }
                 }
+                if (minDR<_minDR) continue;
                 if (_electrons)
                 {
                     const std::vector<Electron>& electrons = _electrons->get();
