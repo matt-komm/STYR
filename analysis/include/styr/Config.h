@@ -15,6 +15,7 @@ class Config
         {
             public:
                 virtual const std::type_info& getType() const = 0;
+                virtual std::unique_ptr<Parameter> clone() const = 0;
         };
         
         template<class TYPE>
@@ -38,6 +39,11 @@ class Config
                 {
                     return _value;
                 }
+                
+                virtual std::unique_ptr<Parameter> clone() const
+                {
+                    return std::unique_ptr<Parameter>(new ParameterTmpl<TYPE>(_value));
+                }
         };
         
         template<class TYPE>
@@ -52,8 +58,35 @@ class Config
         Config()
         {
         }
+        
+        Config(const Config& config)
+        {
+            for (auto& p: config._parameters)
+            {
+                _parameters.emplace(p.first,p.second->clone());
+            }
+        }
+        
+        Config& operator=(const Config& config)
+        {
+            _parameters.clear();
+            for (auto& p: config._parameters)
+            {
+                _parameters.emplace(p.first,p.second->clone());
+            }
+            return *this;
+        }
+        
+        Config(Config&&) = delete;
+        Config& operator=(Config&&) = delete;
     
         Config& set(const char* key, const char* value)
+        {
+            _parameters.emplace(key,makeParameter<std::string>(value));
+            return *this;
+        }
+        
+        Config& set(const char* key, const std::string& value)
         {
             _parameters.emplace(key,makeParameter<std::string>(value));
             return *this;

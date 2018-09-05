@@ -14,6 +14,7 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Process.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Event.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Module.h  
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Config.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/LinkDef.h
 )
 
