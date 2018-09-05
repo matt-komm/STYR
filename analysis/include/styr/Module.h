@@ -35,7 +35,7 @@ class Module
             return _config;
         }
     
-        virtual void analyze(Event&) = 0;
+        virtual bool analyze(Event&) = 0;
         
         virtual void beginFile(const TFile*,styr::Event&) {}
         virtual void endFile(const TFile*,styr::Event&) {}

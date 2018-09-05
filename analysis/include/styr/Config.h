@@ -4,6 +4,21 @@
 #include <typeinfo>
 #include <memory>
 #include <unordered_map>
+#include <vector>
+
+#define ADD_CONFIG_TYPE(TYPE) \
+    Config& set(const char* key, const TYPE& value) \
+    { \
+        _parameters.emplace(key,makeParameter<TYPE>(value)); \
+        return *this; \
+    }
+    
+#define ADD_CONFIG_TYPE2(TYPE1,TYPE2) \
+    Config& set(const char* key, TYPE1 value) \
+    { \
+        _parameters.emplace(key,makeParameter<TYPE2>(value)); \
+        return *this; \
+    }
 
 namespace styr
 {
@@ -80,34 +95,40 @@ class Config
         Config(Config&&) = delete;
         Config& operator=(Config&&) = delete;
     
-        Config& set(const char* key, const char* value)
+        ADD_CONFIG_TYPE2(const char*,std::string)
+        ADD_CONFIG_TYPE(std::string)
+        ADD_CONFIG_TYPE(int)
+        ADD_CONFIG_TYPE(float)
+        ADD_CONFIG_TYPE(bool)
+        
+        ADD_CONFIG_TYPE(std::vector<std::string>)
+        ADD_CONFIG_TYPE(std::vector<int>)
+        ADD_CONFIG_TYPE(std::vector<float>)
+        ADD_CONFIG_TYPE(std::vector<bool>)
+        
+        bool has(const std::string& key) const
         {
-            _parameters.emplace(key,makeParameter<std::string>(value));
-            return *this;
+            auto it = _parameters.find(key);
+            if (it == _parameters.end())
+            {
+                return false;
+            }
+            return true;
         }
         
-        Config& set(const char* key, const std::string& value)
+        template<class TYPE> bool hasOfType(const std::string& key) const
         {
-            _parameters.emplace(key,makeParameter<std::string>(value));
-            return *this;
-        }
-        
-        Config& set(const char* key, int value)
-        {
-            _parameters.emplace(key,makeParameter<int>(value));
-            return *this;
-        }
-        
-        Config& set(const char* key, float value)
-        {
-            _parameters.emplace(key,makeParameter<float>(value));
-            return *this;
-        }
-        
-        Config& set(const char* key, bool value)
-        {
-            _parameters.emplace(key,makeParameter<bool>(value));
-            return *this;
+            auto it = _parameters.find(key);
+            if (it == _parameters.end())
+            {
+                return false;
+            }
+            auto parameter = dynamic_cast<ParameterTmpl<TYPE>*>(it->second.get());
+            if (not parameter)
+            {
+                return false;
+            }
+            return true;
         }
         
         template<class TYPE> const TYPE& get(const std::string& key) const
@@ -123,6 +144,15 @@ class Config
                 throw std::runtime_error("Cannot cast parameter named '"+key+"' of type '"+it->second->getType().name()+"' to '"+typeid(TYPE).name()+"'");
             }
             return parameter->value();
+        }
+        
+        template<class TYPE> const TYPE& getOrDefault(const std::string& key, const TYPE& defaultValue) const
+        {
+            if (hasOfType<TYPE>(key))
+            {
+                return get<TYPE>(key);
+            }
+            return defaultValue;
         }
     
 };

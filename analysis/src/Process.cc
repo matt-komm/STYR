@@ -20,7 +20,6 @@ void Process::addModule(Module* module)
 
 void Process::processFile(TFile* file, const char* treeName)
 {
-    
     TTree* tree = dynamic_cast<TTree*>(file->Get(treeName));
     if (not tree)
     {
@@ -41,10 +40,13 @@ void Process::processFile(TFile* file, const char* treeName)
         tree->GetEntry(entry);
         for (auto module: modules_)
         {
-            module->analyze(event);
+            if (not module->analyze(event))
+            {
+                break;
+            }
         }
+        event.clearOutputBuffers();
     }
-    
     for (auto module: modules_)
     {
         if (not module)
@@ -57,5 +59,4 @@ void Process::processFile(TFile* file, const char* treeName)
 
 }
 
-ClassImp(styr::Process)
 

@@ -23,33 +23,9 @@ class Event
         std::unordered_map<std::string, std::shared_ptr<BranchBase>> _outputBranchMap;
         
     public:
-        Event(TTree* tree):
-            _tree(tree),
-            _entry(0)
-        {
-            _tree->GetEntry(_entry);
-            auto array = _tree->GetListOfBranches();
-            for (int i = 0; i < array->GetSize(); ++i)
-            {
-                auto obj = array->At(i);
-                TBranch* branch = dynamic_cast<TBranch*>(obj);
-                if (branch)
-                {
-                    _inputTreeBranches[branch->GetName()] = branch;
-                }
-            }
-        }
+        Event(TTree* tree);
         
-        int64_t next()
-        {
-            _entry+=1;
-            if (_entry>=_tree->GetEntries())
-            {
-                return -1;
-            }
-            _tree->GetEntry(_entry);
-            return _entry;
-        }
+        int64_t next();
         
         inline int64_t entry() const
         {
@@ -61,16 +37,9 @@ class Event
             return _tree->GetEntries();
         }
         
-        inline int64_t getEntry(int64_t entry)
-        {
-            if (entry>=_tree->GetEntries())
-            {
-                return -1;
-            }
-            _entry = entry;
-            _tree->GetEntry(_entry);
-            return _entry;
-        }
+        int64_t getEntry(int64_t entry);
+        
+        void clearOutputBuffers();
         
         template<class TYPE>
         ConstBranchPtr<TYPE> getBranch(const std::string& name)
@@ -126,13 +95,7 @@ class Event
             return branch;
         }
         
-        
-        ~Event()
-        {
-            _inputTreeBranches.clear();
-            _inputBranchMap.clear();
-            _outputBranchMap.clear();
-        }
+        ~Event();
 };
 
 }

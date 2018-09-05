@@ -30,6 +30,8 @@ class BranchBase
 	        return _name;
 	    }
 	    
+	    virtual void clear() = 0;
+	    
 	    virtual const std::type_info& getType() const = 0;
 	    virtual const std::string& getTypeName() const = 0;
 }; 
@@ -97,6 +99,10 @@ class InputBranch:
         virtual size_t size() const
         {
             return 1;
+        }
+        
+        virtual void clear()
+        {
         }
 };
 
@@ -178,6 +184,10 @@ class InputBranch<std::vector<TYPE>>:
             return -1;
             
         }
+        
+        virtual void clear()
+        {
+        }
 };
 
 template<class TYPE>
@@ -207,6 +217,11 @@ class OutputBranch:
         {
             return 1;
         }
+        
+        virtual void clear()
+        {
+            _data = TYPE();
+        }
 };
 
 template<class TYPE>
@@ -235,6 +250,11 @@ class OutputBranch<std::vector<TYPE>>:
         virtual size_t size() const
         {
             return _data.size();
+        }
+        
+        virtual void clear()
+        {
+            _data.clear();
         }
 };
 

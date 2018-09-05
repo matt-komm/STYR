@@ -16,10 +16,11 @@ class MyModuleInLoop:
         {
         }
         
-        virtual void analyze(styr::Event& event) override
+        virtual bool analyze(styr::Event& event) override
         {
             auto value = event.getBranch<float>("value");
             ASSERT_EQ(ref_,value->get());
+            return true;
         }        
         
         virtual ~MyModuleInLoop()
@@ -46,9 +47,10 @@ class MyModuleInBegin:
             branch_ = event.getBranch<float>("value");
         }
         
-        virtual void analyze(styr::Event&) override
+        virtual bool analyze(styr::Event&) override
         {
             ASSERT_EQ(ref_,branch_->get());
+            return true;
         }        
         
         virtual ~MyModuleInBegin()
@@ -75,10 +77,11 @@ class MyModuleConfig:
             _valueName = config().get<std::string>("valueName");
         }
         
-        virtual void analyze(styr::Event& event) override
+        virtual bool analyze(styr::Event& event) override
         {
             auto value = event.getBranch<float>(_valueName);
             ASSERT_EQ(_ref,value->get());
+            return true;
         }        
         
         virtual ~MyModuleConfig()
