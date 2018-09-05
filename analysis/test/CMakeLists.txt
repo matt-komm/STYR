@@ -19,6 +19,12 @@ add_executable(testProcess
 )
 target_link_libraries(testProcess styr)
 
+
+add_executable(testConfig
+    testConfig.cc
+)
+target_link_libraries(testConfig styr)
+
 add_test(
     NAME testEvent
     COMMAND testEvent
@@ -37,10 +43,15 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-
 add_test(
     NAME testProcess
     COMMAND testProcess
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(
+    NAME testConfig
+    COMMAND testConfig
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
