@@ -11,6 +11,7 @@
 #include <typeinfo>
 #include <iostream>
 
+#include<sstream>
 
 namespace styr
 {
@@ -34,7 +35,16 @@ class BranchBase
 	    
 	    virtual const std::type_info& getType() const = 0;
 	    virtual const std::string& getTypeName() const = 0;
+	    virtual const std::string getInfo() const
+	    {
+	        std::stringstream ss;
+	        ss<<"Branch: "<<_name;
+	        return ss.str();
+	    }
 }; 
+
+typedef std::shared_ptr<BranchBase> BranchBasePtr;
+typedef std::shared_ptr<const BranchBase> ConstBranchBasePtr;
 
 template<class TYPE>
 class Branch:
@@ -62,10 +72,16 @@ class Branch:
         virtual TYPE& get() = 0;
         virtual const TYPE& get() const = 0;
         virtual size_t size() const = 0;
+        
+        virtual const std::string getInfo() const
+	    {
+	        std::stringstream ss;
+	        ss<<"Branch: "<<_name<<" ("<<getTypeName()<<")";
+	        return ss.str();
+	    }
 };
 
 template<class TYPE> const std::string Branch<TYPE>::typeName = typeid(TYPE).name();
-
 
 template<class TYPE>
 using BranchPtr = std::shared_ptr<Branch<TYPE>>;
@@ -188,6 +204,13 @@ class InputBranch<std::vector<TYPE>>:
         virtual void clear()
         {
         }
+        
+        virtual const std::string getInfo() const
+	    {
+	        std::stringstream ss;
+	        ss<<"Branch: "<<this->getName()<<" ("<<this->getTypeName()<<"), size="<<size();
+	        return ss.str();
+	    }
 };
 
 template<class TYPE>
@@ -256,6 +279,13 @@ class OutputBranch<std::vector<TYPE>>:
         {
             _data.clear();
         }
+        
+        virtual const std::string getInfo() const
+	    {
+	        std::stringstream ss;
+	        ss<<"Branch: "<<this->getName()<<" ("<<this->getTypeName()<<"), size="<<size();
+	        return ss.str();
+	    }
 };
 
 

@@ -35,7 +35,7 @@ void Process::processFile(TFile* file, const char* treeName)
         }
         module->beginFile(file,event);
     }
-    for (int64_t entry = 0; entry < std::min<int>(10,tree->GetEntries()); ++entry)
+    for (int64_t entry = 0; entry < std::min<int>(20,tree->GetEntries()); ++entry)
     {
         tree->GetEntry(entry);
         for (auto module: modules_)

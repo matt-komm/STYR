@@ -5,6 +5,7 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/ElectronSelection.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/JetSelection.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/BTagging.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/OutputTreeWriter.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
 )
 
@@ -25,6 +26,7 @@ add_library(styr-plugins SHARED
     ElectronSelection.cc
     JetSelection.cc
     BTagging.cc
+    OutputTreeWriter.cc
     dict.C
 )
 target_link_libraries(styr-plugins styr ${ROOT_LIBRARIES} ${DELPHES_LIBRARIES})

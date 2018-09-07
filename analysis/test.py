@@ -22,8 +22,14 @@ jetSelection.config().set("jetSrc","Jet").set("minPt",40.).set("maxEta",4.0).set
 proc.addModule(jetSelection)
 
 btagging = ROOT.styr.BTagging()
-btagging.config().set("jetSrc","selectedJets").set("minPt",40.).set("maxEta",4.0).set("wp","2").set("output","tagged")
+btagging.config().set("jetSrc","selectedJets").set("minPt",40.).set("maxEta",4.0).set("wp",0).set("output","tagged")
 proc.addModule(btagging)
+
+outputModule = ROOT.styr.OutputTreeWriter()
+outputModule.addBranch("taggedL")
+outputModule.addBranch("taggedB")
+outputModule.addBranch("selectedMuons")
+proc.addModule(outputModule)
 
 proc.processFile(f,"Delphes")
 

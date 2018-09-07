@@ -41,6 +41,24 @@ class Event
         
         void clearOutputBuffers();
         
+        ConstBranchBasePtr getBranchBase(const std::string& name)
+        {
+            //check if branch has already been loaded
+            auto itInput = _inputBranchMap.find(name);
+            if (itInput!=_inputBranchMap.end())
+            {
+                return itInput->second;
+            }
+            
+            //check if branch has been written by another module
+            auto itCache = _outputBranchMap.find(name);
+            if (itCache==_outputBranchMap.end())
+            {
+                throw std::runtime_error("Branch '"+name+"' not found in cache or input");
+            }
+            return itCache->second;
+        }
+        
         template<class TYPE>
         ConstBranchPtr<TYPE> getBranch(const std::string& name)
         {

@@ -53,7 +53,8 @@ class BTagging:
         bool passBTag(const Jet& jet) const
         {
             const int bitmask = (1<<_wp);
-            return (jet.BTag & bitmask);
+            std::cout<<bitmask<<", "<<jet.BTag<<" = "<<(jet.BTag & bitmask)<<std::endl;
+            return (jet.BTag & bitmask)>0;
         }
         
         virtual bool analyze(styr::Event&) override
