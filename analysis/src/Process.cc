@@ -18,7 +18,7 @@ void Process::addModule(Module* module)
     modules_.push_back(module);  
 }
 
-void Process::processFile(TFile* file, const char* treeName)
+void Process::processFile(TFile* file, const char* treeName, int max)
 {
     TTree* tree = dynamic_cast<TTree*>(file->Get(treeName));
     if (not tree)
@@ -35,7 +35,9 @@ void Process::processFile(TFile* file, const char* treeName)
         }
         module->beginFile(file,event);
     }
-    for (int64_t entry = 0; entry < std::min<int>(20,tree->GetEntries()); ++entry)
+    int maxEntries =tree->GetEntries();
+    if (max>0) maxEntries = std::min<int>(20,maxEntries);
+    for (int64_t entry = 0; entry < maxEntries; ++entry)
     {
         tree->GetEntry(entry);
         for (auto module: modules_)

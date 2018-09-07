@@ -10,7 +10,7 @@ proc = ROOT.styr.Process()
 f = ROOT.TFile.Open("/media/matthias/HDD/matthias/Analysis/YR/ST_tch_14TeV_top_incl-powheg-pythia8-madspin_1000_0.root")
 
 muonSelection = ROOT.styr.MuonSelection()
-muonSelection.config().set("muonSrc","MuonTight").set("minPt",50.).set("maxEta",4.0).set("iso",0.1).set("output","selectedMuons")
+muonSelection.config().set("muonSrc","MuonTight").set("minPt",50.).set("maxEta",3.0).set("iso",0.1).set("output","selectedMuons")
 proc.addModule(muonSelection)
 
 electronSelection = ROOT.styr.ElectronSelection()
@@ -22,7 +22,7 @@ jetSelection.config().set("jetSrc","Jet").set("minPt",40.).set("maxEta",4.0).set
 proc.addModule(jetSelection)
 
 btagging = ROOT.styr.BTagging()
-btagging.config().set("jetSrc","selectedJets").set("minPt",40.).set("maxEta",4.0).set("wp",0).set("output","tagged")
+btagging.config().set("jetSrc","selectedJets").set("minPt",40.).set("maxEta",4.0).set("wp",2).set("output","tagged")
 proc.addModule(btagging)
 
 outputModule = ROOT.styr.OutputTreeWriter()

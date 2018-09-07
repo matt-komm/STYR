@@ -41,6 +41,14 @@ class BranchBase
 	        ss<<"Branch: "<<_name;
 	        return ss.str();
 	    }
+	    
+	    virtual void book(TTree*)
+	    {
+	    }
+	    
+	    virtual void write(TTree*)
+	    {
+	    }
 }; 
 
 typedef std::shared_ptr<BranchBase> BranchBasePtr;
@@ -219,7 +227,6 @@ class OutputBranch:
 {
     protected:
         TYPE _data;
-        
     public:
         OutputBranch(const std::string& name):
             Branch<TYPE>(name)
@@ -245,6 +252,15 @@ class OutputBranch:
         {
             _data = TYPE();
         }
+        
+	    virtual void book(TTree* tree)
+	    {
+	        tree->Branch(this->getName().c_str(),&_data);
+	    }
+	    
+	    virtual void write(TTree*)
+	    {
+	    }
 };
 
 template<class TYPE>
@@ -253,7 +269,7 @@ class OutputBranch<std::vector<TYPE>>:
 {
     protected:
         std::vector<TYPE> _data;
-        
+        int _size;
     public:
         OutputBranch(const std::string& name):
             Branch<std::vector<TYPE>>(name)
@@ -285,6 +301,16 @@ class OutputBranch<std::vector<TYPE>>:
 	        std::stringstream ss;
 	        ss<<"Branch: "<<this->getName()<<" ("<<this->getTypeName()<<"), size="<<size();
 	        return ss.str();
+	    }
+	    
+	    virtual void book(TTree* tree)
+	    {
+	        tree->Branch(("n"+this->getName()).c_str(),&_size);
+	    }
+	    
+	    virtual void write(TTree*)
+	    {
+	        _size = this->size();
 	    }
 };
 

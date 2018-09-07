@@ -41,13 +41,14 @@ class Event
         
         void clearOutputBuffers();
         
-        ConstBranchBasePtr getBranchBase(const std::string& name)
+        BranchBasePtr getBranchBase(const std::string& name)
         {
             //check if branch has already been loaded
             auto itInput = _inputBranchMap.find(name);
             if (itInput!=_inputBranchMap.end())
             {
-                return itInput->second;
+                //TODO: need to copy it into cache
+                throw std::runtime_error("Branch '"+name+"' from input not yet supported");
             }
             
             //check if branch has been written by another module

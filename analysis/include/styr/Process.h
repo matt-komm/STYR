@@ -21,7 +21,7 @@ class Process
         }
         
         void addModule(Module* module);
-        void processFile(TFile* file, const char* treeName);
+        void processFile(TFile* file, const char* treeName, int max=-1);
 };
 
 }
