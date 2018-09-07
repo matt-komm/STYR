@@ -1,7 +1,7 @@
 import ROOT
 import numpy
 
-ROOT.gSystem.Load("libDelphes.so")
+#ROOT.gSystem.Load("libDelphes.so")
 ROOT.gSystem.Load("libstyr.so")
 ROOT.gSystem.Load("plugins/libstyr-plugins.so")
 
@@ -20,6 +20,10 @@ proc.addModule(electronSelection)
 jetSelection = ROOT.styr.JetSelection()
 jetSelection.config().set("jetSrc","Jet").set("minPt",40.).set("maxEta",4.0).set("minDR",0.4).set("muonSrc","selectedMuons").set("electronSrc","selectedElectrons").set("output","selectedJets")
 proc.addModule(jetSelection)
+
+btagging = ROOT.styr.BTagging()
+btagging.config().set("jetSrc","selectedJets").set("minPt",40.).set("maxEta",4.0).set("wp","2").set("output","tagged")
+proc.addModule(btagging)
 
 proc.processFile(f,"Delphes")
 
