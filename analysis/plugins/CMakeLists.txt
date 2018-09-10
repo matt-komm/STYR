@@ -7,6 +7,9 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/BTagging.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/OutputTreeWriter.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/NeutrinoPz.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/MergeParticles.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/TopReconstruction.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/GenReconstruction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
 )
 
@@ -30,6 +33,9 @@ add_library(styr-plugins SHARED
     OutputTreeWriter.cc
     NeutrinoPz.cc
     NeutrinoPzSolver.cc
+    TopReconstruction.cc
+    MergeParticles.cc
+    GenReconstruction.cc
     dict.C
 )
 target_link_libraries(styr-plugins styr ${ROOT_LIBRARIES} ${DELPHES_LIBRARIES})

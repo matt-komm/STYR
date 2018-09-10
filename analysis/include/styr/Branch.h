@@ -281,6 +281,8 @@ class OutputBranch<Particle>:
         Particle _data;
         
         TLorentzVector _p4_buf;
+        std::unordered_map<std::string, std::shared_ptr<Particle::Property>> _property_buf;
+        
     public:
         OutputBranch(const std::string& name):
             Branch<Particle>(name)

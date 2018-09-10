@@ -48,8 +48,8 @@ class BTagging:
         
             _jets = event.getBranch<std::vector<Particle>>(config().get<std::string>("jetSrc"));
             
-            _selectedLJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output")+"L");
-            _selectedBJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output")+"B");
+            _selectedLJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("outputUntagged"));
+            _selectedBJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("outputTagged"));
         }
         
         bool passBTag(const Particle& jet) const

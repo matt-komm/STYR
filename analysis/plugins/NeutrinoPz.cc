@@ -40,21 +40,25 @@ class NeutrinoPz:
         {
             const std::vector<Particle>& leptons = _leptons->get();
             const MissingET& met = _met->get()[0];
-            if (_leptons->size()==0)
+            if (_leptons->size()!=1)
             {
                 _output->get()=met;
-                _mtw->get()=-1000;
+                _mtw->get()=-10;
                 return true;
             }
             auto solution = NuMomentum(
                 leptons[0].P4().Px(), leptons[0].P4().Py(), leptons[0].P4().Pz(), 
-                leptons[0].P4().Pt(), leptons[0].P4().E(), met.P4().Px(), met.P4().Px() 
+                leptons[0].P4().Pt(), leptons[0].P4().E(), met.P4().Px(), met.P4().Py() 
             ).first;
             
             Particle p(solution);
             _output->get()=p;
             
-            _mtw->get()=(leptons[0].P4().Px()+met.P4().Px());
+            _mtw->get()=std::sqrt(
+                std::pow(leptons[0].P4().Pt()+met.P4().Pt(),2)
+                -std::pow(leptons[0].P4().Px()+met.P4().Px(),2)
+                -std::pow(leptons[0].P4().Py()+met.P4().Py(),2)
+            );
             _output->get()=met;
             return true;
         }        

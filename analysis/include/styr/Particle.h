@@ -16,8 +16,8 @@ namespace styr
 
 class Particle
 {
-    protected:
-
+    
+    public:
         class Property
         {
             public:
@@ -49,6 +49,7 @@ class Particle
                 }
         };
         
+    protected:
         TLorentzVector _p4;
         std::unordered_map<std::string,std::shared_ptr<Property>> _properties;
         
@@ -103,7 +104,6 @@ class Particle
                 name,
                 std::shared_ptr<Property>(new PropertyTmpl<TYPE>(value))
             );
-            
         }
         
         virtual const TLorentzVector& P4() const
