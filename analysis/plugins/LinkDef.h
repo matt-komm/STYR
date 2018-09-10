@@ -5,5 +5,6 @@
 #pragma link C++ class styr::JetSelection-!;
 #pragma link C++ class styr::BTagging-!;
 #pragma link C++ class styr::OutputTreeWriter-!;
+#pragma link C++ class styr::NeutrinoPz-!;
 
 #endif

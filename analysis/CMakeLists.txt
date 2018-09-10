@@ -15,6 +15,7 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Event.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Module.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Config.h  
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/Particle.h  
     ${CMAKE_CURRENT_SOURCE_DIR}/include/styr/LinkDef.h
 )
 
@@ -32,6 +33,7 @@ add_custom_command(
 add_library(styr SHARED
     src/Process.cc
     src/Event.cc
+    src/Branch.cc
     dict.C
 )
 

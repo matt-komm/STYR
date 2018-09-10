@@ -1,6 +1,7 @@
 #include "styr/Event.h"
 #include "styr/Branch.h"
 #include "styr/Module.h"
+#include "styr/Particle.h"
 
 #include "classes/DelphesClasses.h"
 
@@ -12,10 +13,10 @@ class JetSelection:
 {
     protected:
         styr::ConstBranchPtr<std::vector<Jet>> _jets;
-        styr::ConstBranchPtr<std::vector<Muon>> _muons;
-        styr::ConstBranchPtr<std::vector<Electron>> _electrons;
+        styr::ConstBranchPtr<std::vector<Particle>> _muons;
+        styr::ConstBranchPtr<std::vector<Particle>> _electrons;
         
-        styr::BranchPtr<std::vector<Jet>> _selectedJets;
+        styr::BranchPtr<std::vector<Particle>> _selectedJets;
         
         float _minJetPt;
         float _maxJetEta;
@@ -39,13 +40,13 @@ class JetSelection:
             _jets = event.getBranch<std::vector<Jet>>(config().get<std::string>("jetSrc"));
             if (config().has("muonSrc"))
             {
-                _muons = event.getBranch<std::vector<Muon>>(config().get<std::string>("muonSrc"));
+                _muons = event.getBranch<std::vector<Particle>>(config().get<std::string>("muonSrc"));
             }
             if (config().has("electronSrc"))
             {
-                _electrons = event.getBranch<std::vector<Electron>>(config().get<std::string>("electronSrc"));
+                _electrons = event.getBranch<std::vector<Particle>>(config().get<std::string>("electronSrc"));
             }
-            _selectedJets = event.createBranch<std::vector<Jet>>(config().get<std::string>("output"));
+            _selectedJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
         }
         
         bool passJetId(const Jet& jet) const
@@ -65,7 +66,7 @@ class JetSelection:
                 float minDR = 10000.;
                 if (_muons)
                 {
-                    const std::vector<Muon>& muons = _muons->get();
+                    const std::vector<Particle>& muons = _muons->get();
                     for (size_t j = 0; j < _muons->size(); ++j)
                     {
                         float dR = jets[i].P4().DeltaR(muons[j].P4());
@@ -75,7 +76,7 @@ class JetSelection:
                 if (minDR<_minDR) continue;
                 if (_electrons)
                 {
-                    const std::vector<Electron>& electrons = _electrons->get();
+                    const std::vector<Particle>& electrons = _electrons->get();
                     for (size_t j = 0; j < _electrons->size(); ++j)
                     {
                         float dR = jets[i].P4().DeltaR(electrons[j].P4());

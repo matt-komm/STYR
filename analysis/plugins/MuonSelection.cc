@@ -1,6 +1,7 @@
 #include "styr/Event.h"
 #include "styr/Branch.h"
 #include "styr/Module.h"
+#include "styr/Particle.h"
 
 #include "classes/DelphesClasses.h"
 
@@ -13,7 +14,7 @@ class MuonSelection:
     protected:
         styr::ConstBranchPtr<std::vector<Muon>> _muons;
         
-        styr::BranchPtr<std::vector<Muon>> _selectedMuons;
+        styr::BranchPtr<std::vector<Particle>> _selectedMuons;
         
         float _minMuonPt;
         float _maxMuonEta;
@@ -36,7 +37,7 @@ class MuonSelection:
         
             _muons = event.getBranch<std::vector<Muon>>(config().get<std::string>("muonSrc"));
             
-            _selectedMuons = event.createBranch<std::vector<Muon>>(config().get<std::string>("output"));
+            _selectedMuons = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
         }
         
         bool passMuonId(const Muon&) const

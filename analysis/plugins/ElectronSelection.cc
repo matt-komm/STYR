@@ -1,6 +1,7 @@
 #include "styr/Event.h"
 #include "styr/Branch.h"
 #include "styr/Module.h"
+#include "styr/Particle.h"
 
 #include "classes/DelphesClasses.h"
 
@@ -13,7 +14,7 @@ class ElectronSelection:
     protected:
         styr::ConstBranchPtr<std::vector<Electron>> _electrons;
         
-        styr::BranchPtr<std::vector<Electron>> _selectedElectrons;
+        styr::BranchPtr<std::vector<Particle>> _selectedElectrons;
         
         float _minElectronPt;
         float _maxElectronEta;
@@ -36,7 +37,7 @@ class ElectronSelection:
         
             _electrons = event.getBranch<std::vector<Electron>>(config().get<std::string>("electronSrc"));
             
-            _selectedElectrons = event.createBranch<std::vector<Electron>>(config().get<std::string>("output"));
+            _selectedElectrons = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
         }
         
         bool passElectronId(const Electron&) const

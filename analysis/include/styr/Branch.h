@@ -6,15 +6,25 @@
 #include "TBranchElement.h"
 #include "TClonesArray.h"
 
+#include "styr/Particle.h"
+
 #include <memory>
 #include <string>
 #include <typeinfo>
 #include <iostream>
 
-#include<sstream>
+#include <sstream>
 
 namespace styr
 {
+
+template<class TYPE>
+const std::string getBranchClass()
+{   
+    return TYPE::Class()->GetName();
+};
+template<> const std::string getBranchClass<int>();
+template<> const std::string getBranchClass<float>();
 
 class BranchBase
 {
@@ -263,12 +273,59 @@ class OutputBranch:
 	    }
 };
 
+template<>
+class OutputBranch<Particle>:
+    public Branch<Particle>
+{
+    protected:
+        Particle _data;
+        
+        TLorentzVector _p4_buf;
+    public:
+        OutputBranch(const std::string& name):
+            Branch<Particle>(name)
+        {
+        }
+        
+        virtual Particle& get()
+        {
+            return _data;
+        }
+        
+        virtual const Particle& get() const
+        {
+            return _data;
+        }
+        
+        virtual size_t size() const
+        {
+            return 1;
+        }
+        
+        virtual void clear()
+        {
+            _data = Particle();
+        }
+        
+	    virtual void book(TTree* tree)
+	    {
+	        
+	        tree->Branch((this->getName()+"_p4").c_str(),&_p4_buf);
+	    }
+	    
+	    virtual void write(TTree*)
+	    {
+	        _p4_buf = _data.P4();
+	    }
+};
+
 template<class TYPE>
 class OutputBranch<std::vector<TYPE>>:
     public Branch<std::vector<TYPE>>
 {
     protected:
         std::vector<TYPE> _data;
+        TYPE _buffer[100];
         int _size;
     public:
         OutputBranch(const std::string& name):
@@ -306,11 +363,18 @@ class OutputBranch<std::vector<TYPE>>:
 	    virtual void book(TTree* tree)
 	    {
 	        tree->Branch(("n"+this->getName()).c_str(),&_size);
+	        //tree->Branch((this->getName()).c_str(),_buffer,(this->getName()+"[n"+this->getName()+"]").c_str());
 	    }
 	    
 	    virtual void write(TTree*)
 	    {
 	        _size = this->size();
+	        /*
+	        for (int i = 0; i < _size; ++i)
+	        {
+	            _buffer[i] = _data[i];
+	        }
+	        */
 	    }
 };
 

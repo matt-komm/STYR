@@ -1,4 +1,4 @@
-#include_directories(${PROJECT_SOURCE_DIR}/include SYSTEM ${ROOT_INCLUDE_DIR} ${DELPHES_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/MuonSelection.cc
@@ -6,6 +6,7 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/JetSelection.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/BTagging.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/OutputTreeWriter.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/NeutrinoPz.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
 )
 
@@ -27,6 +28,8 @@ add_library(styr-plugins SHARED
     JetSelection.cc
     BTagging.cc
     OutputTreeWriter.cc
+    NeutrinoPz.cc
+    NeutrinoPzSolver.cc
     dict.C
 )
 target_link_libraries(styr-plugins styr ${ROOT_LIBRARIES} ${DELPHES_LIBRARIES})
