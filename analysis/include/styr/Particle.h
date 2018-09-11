@@ -73,6 +73,7 @@ class Particle
             _p4(jet.P4())
         {
             set<int>("BTag",jet.BTag);
+            set<int>("flavor",jet.Flavor);
         }
         
         Particle(const MissingET& met):

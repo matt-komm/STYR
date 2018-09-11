@@ -55,6 +55,12 @@ outputModule.addBranch("selectedLJets")
 outputModule.addBranch("selectedBJets")
 outputModule.addBranch("selectedMuons")
 
+outputModule.addBranch("bWeight_nominal")
+outputModule.addBranch("bWeight_bcUp")
+outputModule.addBranch("bWeight_bcDown")
+outputModule.addBranch("bWeight_lUp")
+outputModule.addBranch("bWeight_lDown")
+
 outputModule.addBranch("neutrino")
 outputModule.addBranch("neutrino_mtw")
 
@@ -66,5 +72,5 @@ outputModule.addBranch("gentop_mass")
 
 proc.addModule(outputModule)
 
-proc.processFile(f,"Delphes")
+proc.processFile(f,"Delphes",20)
 

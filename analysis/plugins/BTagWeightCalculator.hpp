@@ -12,12 +12,12 @@ namespace BWGHT
 struct Jet
 {
     double discriminatorValue;
-    unsigned int flavor;
+    int flavor;
     double pt;
     double eta;
     
     
-    Jet(double discriminatorValue=0, unsigned int flavor = 0, double pt = 0.0, double eta = 0.0):
+    Jet(double discriminatorValue=0, int flavor = 0, double pt = 0.0, double eta = 0.0):
         discriminatorValue(discriminatorValue),
         flavor(flavor),
         pt(pt),
@@ -63,7 +63,7 @@ class ConstEfficiencyFunction:
         {
         }
         
-        virtual double getEfficiency(const Jet& jet, SYS::TYPE=SYS::NOMINAL) const
+        virtual double getEfficiency(const Jet&, SYS::TYPE=SYS::NOMINAL) const
         {
             return _efficiency;
         }
@@ -107,7 +107,7 @@ class ConstScaleFactorFunction:
         {
         }
         
-        virtual double getScaleFactor(const Jet& jet, SYS::TYPE=SYS::NOMINAL) const
+        virtual double getScaleFactor(const Jet&, SYS::TYPE=SYS::NOMINAL) const
         {
             return _scaleFactor;
         }
