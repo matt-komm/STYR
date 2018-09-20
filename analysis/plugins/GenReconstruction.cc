@@ -32,41 +32,17 @@ class GenReconstruction:
             _cosThetaPL = event.createBranch<float>(config().get<std::string>("output")+"_cosThetaPL");
             
         }
-        /*
-        bool isInDecay(const std::vector<GenParticle>& genParticles, int maxSize, const GenParticle& p, const GenParticle& mother, int index=-1)
+        
+        bool isInDecay(const std::vector<GenParticle>& genParticles, const GenParticle& p, const GenParticle& mother)
         {
-            std::cout<<"   testing: "<<p.PID<<", "<<p.M1<<", size="<<maxSize<<", len="<<genParticles.size()<<", index="<<index<<", d="<<p.D1<<"..."<<p.D2<<std::endl;
-            if (p.PID==mother.PID) return true;
-            if (p.M1>0 and p.M1<maxSize and p.M1<genParticles.size() and index!=p.M1)
+            if (p.PID==mother.PID and (std::fabs(p.P4().Pt()-mother.P4().Pt())<0.00001)) return true;
+            if (p.M1>=0)
             {
-                return (isInDecay(genParticles,maxSize,genParticles[p.M1],mother,p.M1));
-            }
-            return false;
-        }
-        */
-        bool isInDecay2(const std::vector<GenParticle>& genParticles, int maxSize, const GenParticle& p, const GenParticle& mother, int index=-1)
-        {
-            std::cout<<"   testing: "<<p.PID<<", "<<p.M1<<", size="<<maxSize<<", len="<<genParticles.size()<<", index="<<index<<", d="<<p.D1<<"..."<<p.D2<<std::endl;
-            if (mother.PID==p.PID) return true;
-            if (mother.D1>=0)
-            {
-                if (isInDecay2(genParticles,maxSize,p,genParticles[mother.D1],mother.D1))
-                {
-                    return true;
-                }
-                /*
-                for (int i = mother.D1; i < (mother.D2+1); ++i)
-                {
-                    if (isInDecay2(genParticles,maxSize,p,genParticles[i],i))
-                    {
-                        return true;
-                    }
-                }*/
+                return (isInDecay(genParticles,genParticles[p.M1],mother));
             }
             return false;
         }
         
-         
         virtual bool analyze(styr::Event&) override
         {
             
@@ -89,26 +65,78 @@ class GenReconstruction:
                         throw std::runtime_error("Found multiple top quarks in event");
                     }
                 }
-                else if (std::abs(particle.PID)>=1 and std::abs(particle.PID)<5)
+                else if (std::abs(particle.PID)>=1 and std::abs(particle.PID)<5 and std::abs(particle.Status)==23)// and particle.D1==particle.D2)
                 {
                     lquarks.push_back(&particle);
                 }
+                else if (std::abs(particle.PID)==11 or std::abs(particle.PID)==13 or std::abs(particle.PID)==15)
+                {
+                    if (std::abs(genParticles[particle.M1].PID)==24)
+                    {
+                        leptons.push_back(&particle);
+                    }
+                }
+                
             }
             if (top==nullptr)
             {
                 throw std::runtime_error("Found no top quark in event");
             }
-            /*
+            
+            float minDeltaPt = 1000000.;
+            const GenParticle* spectatorQuark = nullptr;
+            int ambi = 0;
             for (auto lquark: lquarks)
             {
-                std::cout<<lquark->PID<<": "<<lquark->Status<<", ";
-                std::cout<<isInDecay2(genParticles,_genParticles->size(),*lquark,*top)<<std::endl;
-            }*/
-            /*
-            float minPt = 1000000;
-            for (
-            */
+
+                if (not (isInDecay(genParticles,*lquark,*top) or isInDecay(genParticles,*top,*lquark)))
+                {
+                    ambi+=1;
+                    TLorentzVector vec = top->P4()-lquark->P4();
+                    if (minDeltaPt>vec.Pt())
+                    {
+                        minDeltaPt = vec.Pt();
+                        spectatorQuark = lquark;
+                    }
+                }
+            }
+            if (not spectatorQuark)
+            {
+               throw std::runtime_error("Found no spectator quark in event");
+            }
+
             _topMass->get()=top->P4().M();
+            
+            const GenParticle* leptonFromTop = nullptr;
+            
+            for (auto lepton: leptons)
+            {
+                if (isInDecay(genParticles,*lepton,*top))
+                {
+                    if (leptonFromTop!=nullptr)
+                    {
+                        throw std::runtime_error("Found multiple leptons in event");
+                    }
+                    leptonFromTop = lepton;
+                }
+            }
+            
+            if (not leptonFromTop)
+            {
+                throw std::runtime_error("Found no leptons from top in event");
+            }
+            
+            TLorentzVector leptonInTop = leptonFromTop->P4();
+            leptonInTop.Boost(-top->P4().BoostVector());
+            
+            TLorentzVector lquarkInTop = spectatorQuark->P4();
+            lquarkInTop.Boost(-top->P4().BoostVector());
+            
+            _cosThetaPL->get()=(
+                (leptonInTop.Px()*lquarkInTop.Px()+leptonInTop.Py()*lquarkInTop.Py()+leptonInTop.Pz()*lquarkInTop.Pz())/
+                (leptonInTop.P()*lquarkInTop.P())
+            );
+            
             return true;
         }        
         

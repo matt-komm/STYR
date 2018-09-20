@@ -7,7 +7,7 @@ ROOT.gSystem.Load("plugins/libstyr-plugins.so")
 
 
 proc = ROOT.styr.Process()
-f = ROOT.TFile.Open("/media/matthias/HDD/matthias/Analysis/YR/ST_tch_14TeV_top_incl-powheg-pythia8-madspin_1000_0.root")
+f = ROOT.TFile.Open("/media/matthias/HDD/matthias/Analysis/YR/ST_tch_14TeV_top.root")
 
 muonSelection = ROOT.styr.MuonSelection()
 muonSelection.config().set("muonSrc","MuonTight").set("minPt",40.).set("maxEta",3.0).set("iso",0.05).set("output","selectedMuons")
@@ -69,8 +69,9 @@ outputModule.addBranch("top_cosThetaPL")
 outputModule.addBranch("top_ljetAbsEta")
 
 outputModule.addBranch("gentop_mass")
+outputModule.addBranch("gentop_cosThetaPL")
 
 proc.addModule(outputModule)
 
-proc.processFile(f,"Delphes",20)
+proc.processFile(f,"Delphes",10000)
 

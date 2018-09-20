@@ -36,7 +36,7 @@ void Process::processFile(TFile* file, const char* treeName, int max)
         module->beginFile(file,event);
     }
     int maxEntries =tree->GetEntries();
-    if (max>0) maxEntries = std::min<int>(20,maxEntries);
+    if (max>0) maxEntries = std::min<int>(max,maxEntries);
     for (int64_t entry = 0; entry < maxEntries; ++entry)
     {
         tree->GetEntry(entry);
