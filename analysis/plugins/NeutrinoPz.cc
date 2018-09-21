@@ -40,9 +40,9 @@ class NeutrinoPz:
         {
             const std::vector<Particle>& leptons = _leptons->get();
             const MissingET& met = _met->get()[0];
-            if (_leptons->size()!=1)
+            if (_leptons->size()==0)
             {
-                _output->get()=met;
+                _output->get()=styr::Particle();
                 _mtw->get()=-10;
                 return true;
             }

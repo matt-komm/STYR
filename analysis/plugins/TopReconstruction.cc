@@ -19,11 +19,16 @@ class TopReconstruction:
         
         styr::ConstBranchPtr<Particle> _neutrino;
         
-        styr::BranchPtr<float> _topMass;
+        
         
         styr::BranchPtr<float> _cosThetaPL;
         
-        styr::BranchPtr<float> _ljetAbsEta;
+        styr::BranchPtr<float> _ljetPt;
+        styr::BranchPtr<float> _ljetEta;
+        
+        styr::BranchPtr<float> _topMass;
+        styr::BranchPtr<float> _topPt;
+        styr::BranchPtr<float> _topY;
     
     public:
         TopReconstruction():
@@ -40,22 +45,28 @@ class TopReconstruction:
             
             _neutrino = event.getBranch<Particle>(config().get<std::string>("neutrinoSrc"));
             
-            _topMass = event.createBranch<float>(config().get<std::string>("output")+"_mass");
-            
             _cosThetaPL = event.createBranch<float>(config().get<std::string>("output")+"_cosThetaPL");
             
-            _ljetAbsEta = event.createBranch<float>(config().get<std::string>("output")+"_ljetAbsEta");
+            _ljetPt = event.createBranch<float>(config().get<std::string>("output")+"_ljetPt");
+            _ljetEta = event.createBranch<float>(config().get<std::string>("output")+"_ljetEta");
+            
+            _topMass = event.createBranch<float>(config().get<std::string>("output")+"_topMass");
+            _topPt = event.createBranch<float>(config().get<std::string>("output")+"_topPt");
+            _topY = event.createBranch<float>(config().get<std::string>("output")+"_topY");
         }
 
 
         virtual bool analyze(styr::Event&) override
         {
             
-            if (_leptons->size()!=1)
+            if (_leptons->size()==0)
             {
                 _topMass->get()=-10;
+                _topPt->get()=-10;
+                _topY->get()=-10;
                 _cosThetaPL->get()=-10;
-                _ljetAbsEta->get()=-10;
+                _ljetEta->get()=-10;
+                _ljetPt->get()=-10;
                 return true;
             }
             Particle lepton = _leptons->get()[0];
@@ -90,12 +101,15 @@ class TopReconstruction:
             else
             {
                 _topMass->get()=-10;
+                _topPt->get()=-10;
+                _topY->get()=-10;
                 _cosThetaPL->get()=-10;
-                _ljetAbsEta->get()=-10;
+                _ljetPt->get()=-10;
+                _ljetEta->get()=-10;
                 return true;
             }
-            //std::cout<<ljet.P4().Eta()<<", "<<std::fabs(ljet.P4().Eta())<<", "<<_ljets->size()<<std::endl;
-            _ljetAbsEta->get() = std::fabs(ljet.P4().Eta());
+            _ljetPt->get() = ljet.P4().Pt();
+            _ljetEta->get() = ljet.P4().Eta();
             
             TLorentzVector topVector(0,0,0,0);
             topVector+=lepton.P4();
@@ -103,6 +117,9 @@ class TopReconstruction:
             topVector+=bjet.P4();
             
             _topMass->get()=topVector.M();
+            
+            _topPt->get()=topVector.Pt();
+            _topY->get()=topVector.Rapidity();
             
             TLorentzVector ljetInTop = ljet.P4();
             ljetInTop.Boost(-topVector.BoostVector());

@@ -38,7 +38,7 @@ topReco = ROOT.styr.TopReconstruction()
 topReco.config().set("leptonSrc","selectedLeptons")
 topReco.config().set("ljetSrc","selectedLJets").set("bjetSrc","selectedBJets")
 topReco.config().set("neutrinoSrc","neutrino")
-topReco.config().set("output","top")
+topReco.config().set("output","nominal_topReco")
 proc.addModule(topReco)
 
 genReco = ROOT.styr.GenReconstruction()
@@ -55,6 +55,9 @@ outputModule.addBranch("selectedLJets")
 outputModule.addBranch("selectedBJets")
 outputModule.addBranch("selectedMuons")
 
+outputModule.addBranch("selectedLeptons_pt")
+outputModule.addBranch("selectedLeptons_eta")
+
 outputModule.addBranch("bWeight_nominal")
 outputModule.addBranch("bWeight_bcUp")
 outputModule.addBranch("bWeight_bcDown")
@@ -64,14 +67,20 @@ outputModule.addBranch("bWeight_lDown")
 outputModule.addBranch("neutrino")
 outputModule.addBranch("neutrino_mtw")
 
-outputModule.addBranch("top_mass")
-outputModule.addBranch("top_cosThetaPL")
-outputModule.addBranch("top_ljetAbsEta")
+outputModule.addBranch("nominal_topReco_topMass")
+outputModule.addBranch("nominal_topReco_topPt")
+outputModule.addBranch("nominal_topReco_topY")
 
-outputModule.addBranch("gentop_mass")
+outputModule.addBranch("nominal_topReco_cosThetaPL")
+outputModule.addBranch("nominal_topReco_ljetPt")
+outputModule.addBranch("nominal_topReco_ljetEta")
+
+outputModule.addBranch("gentop_topMass")
+outputModule.addBranch("gentop_topPt")
+outputModule.addBranch("gentop_topY")
 outputModule.addBranch("gentop_cosThetaPL")
 
 proc.addModule(outputModule)
 
-proc.processFile(f,"Delphes",10000)
+proc.processFile(f,"Delphes",-1)
 

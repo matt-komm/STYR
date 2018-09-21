@@ -15,6 +15,8 @@ class GenReconstruction:
         styr::ConstBranchPtr<std::vector<GenParticle>> _genParticles;
         
         styr::BranchPtr<float> _topMass;
+        styr::BranchPtr<float> _topPt;
+        styr::BranchPtr<float> _topY;
         styr::BranchPtr<float> _cosThetaPL;
     
     public:
@@ -27,7 +29,9 @@ class GenReconstruction:
         {
             _genParticles = event.getBranch<std::vector<GenParticle>>(config().get<std::string>("genSrc"));
             
-            _topMass = event.createBranch<float>(config().get<std::string>("output")+"_mass");
+            _topMass = event.createBranch<float>(config().get<std::string>("output")+"_topMass");
+            _topPt = event.createBranch<float>(config().get<std::string>("output")+"_topPt");
+            _topY = event.createBranch<float>(config().get<std::string>("output")+"_topY");
             
             _cosThetaPL = event.createBranch<float>(config().get<std::string>("output")+"_cosThetaPL");
             
@@ -65,23 +69,48 @@ class GenReconstruction:
                         throw std::runtime_error("Found multiple top quarks in event");
                     }
                 }
-                else if (std::abs(particle.PID)>=1 and std::abs(particle.PID)<5 and std::abs(particle.Status)==23)// and particle.D1==particle.D2)
+                if (std::abs(particle.PID)>=1 and std::abs(particle.PID)<5 and std::abs(particle.Status)==23)// and particle.D1==particle.D2)
                 {
                     lquarks.push_back(&particle);
                 }
-                else if (std::abs(particle.PID)==11 or std::abs(particle.PID)==13 or std::abs(particle.PID)==15)
+                if (std::abs(particle.PID)==11 or std::abs(particle.PID)==13 or std::abs(particle.PID)==15)
                 {
-                    if (std::abs(genParticles[particle.M1].PID)==24)
+                    int motherIndex = particle.M1;
+                    bool fromTop = false;
+                    //lepton needs to come directly from t->W->l decay
+                    while (motherIndex>=0)
+                    {
+                        int pid = std::abs(genParticles[motherIndex].PID);
+                        if (pid==24) 
+                        {
+                            motherIndex = genParticles[motherIndex].M1;
+                            continue;
+                        }
+                        if (pid==6)
+                        {
+                            fromTop = true;
+                        }
+                        break;
+                    }
+                    if (fromTop)
                     {
                         leptons.push_back(&particle);
                     }
                 }
                 
+                
             }
+            
             if (top==nullptr)
             {
                 throw std::runtime_error("Found no top quark in event");
             }
+            
+            if (leptons.size()!=1)
+            {
+                throw std::runtime_error("Found no lepton from top in event");
+            }
+            const GenParticle* leptonFromTop = leptons[0];
             
             float minDeltaPt = 1000000.;
             const GenParticle* spectatorQuark = nullptr;
@@ -106,25 +135,8 @@ class GenReconstruction:
             }
 
             _topMass->get()=top->P4().M();
-            
-            const GenParticle* leptonFromTop = nullptr;
-            
-            for (auto lepton: leptons)
-            {
-                if (isInDecay(genParticles,*lepton,*top))
-                {
-                    if (leptonFromTop!=nullptr)
-                    {
-                        throw std::runtime_error("Found multiple leptons in event");
-                    }
-                    leptonFromTop = lepton;
-                }
-            }
-            
-            if (not leptonFromTop)
-            {
-                throw std::runtime_error("Found no leptons from top in event");
-            }
+            _topPt->get()=top->P4().Pt();
+            _topY->get()=top->P4().Rapidity();
             
             TLorentzVector leptonInTop = leptonFromTop->P4();
             leptonInTop.Boost(-top->P4().BoostVector());
