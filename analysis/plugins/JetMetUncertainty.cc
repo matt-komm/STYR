@@ -98,7 +98,8 @@ class JetMetUncertainty:
         virtual bool analyze(styr::Event&) override
         {
             const std::vector<Jet>& jets = _jets->get();
-            const MissingET& met = _met->get()[0];
+            Particle met = _met->get()[0];
+            met.P4().SetPxPyPzE(met.P4().Px(), met.P4().Py(), 0.0, std::sqrt(met.P4().Px()*met.P4().Px()+met.P4().Py()*met.P4().Py()));
             
             float metPx_jecUp = met.P4().Px();
             float metPy_jecUp = met.P4().Py();
