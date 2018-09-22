@@ -74,6 +74,8 @@ class Particle
         {
             set<int>("BTag",jet.BTag);
             set<int>("flavor",jet.Flavor);
+            set<int>("NCharged",jet.NCharged);
+            set<int>("NNeutrals",jet.NNeutrals);
         }
         
         Particle(const MissingET& met):
@@ -111,6 +113,12 @@ class Particle
         {
             return _p4;
         }
+        
+        virtual TLorentzVector& P4()
+        {
+            return _p4;
+        }
+        
         virtual ~Particle()
         {
         }

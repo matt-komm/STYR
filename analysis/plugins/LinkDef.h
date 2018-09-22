@@ -9,5 +9,6 @@
 #pragma link C++ class styr::NeutrinoPz-!;
 #pragma link C++ class styr::TopReconstruction-!;
 #pragma link C++ class styr::GenReconstruction-!;
+#pragma link C++ class styr::JetMetUncertainty-!;
 
 #endif

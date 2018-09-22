@@ -304,14 +304,14 @@ class BTagging:
         
             _jets = event.getBranch<std::vector<Particle>>(config().get<std::string>("jetSrc"));
             
-            _selectedLJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("outputUntagged"));
-            _selectedBJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("outputTagged"));
+            _selectedLJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output")+"_untagged");
+            _selectedBJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output")+"_tagged");
             
-            _bWeight_nominal = event.createBranch<float>("bWeight_nominal");
-            _bWeight_bcUp = event.createBranch<float>("bWeight_bcUp");
-            _bWeight_bcDown = event.createBranch<float>("bWeight_bcDown");
-            _bWeight_lUp = event.createBranch<float>("bWeight_lUp");
-            _bWeight_lDown = event.createBranch<float>("bWeight_lDown");
+            _bWeight_nominal = event.createBranch<float>(config().get<std::string>("output")+"_bWeight_nominal");
+            _bWeight_bcUp = event.createBranch<float>(config().get<std::string>("output")+"_bWeight_bcUp");
+            _bWeight_bcDown = event.createBranch<float>(config().get<std::string>("output")+"_bWeight_bcDown");
+            _bWeight_lUp = event.createBranch<float>(config().get<std::string>("output")+"_bWeight_lUp");
+            _bWeight_lDown = event.createBranch<float>(config().get<std::string>("output")+"_bWeight_lDown");
         }
         
         bool passBTag(const Particle& jet) const

@@ -12,7 +12,7 @@ class JetSelection:
     public styr::Module
 {
     protected:
-        styr::ConstBranchPtr<std::vector<Jet>> _jets;
+        styr::ConstBranchPtr<std::vector<Particle>> _jets;
         styr::ConstBranchPtr<std::vector<Particle>> _muons;
         styr::ConstBranchPtr<std::vector<Particle>> _electrons;
         
@@ -37,7 +37,7 @@ class JetSelection:
             _maxJetEta = config().getOrDefault<float>("maxEta",_maxJetEta);
             _minDR = config().getOrDefault<float>("minDR",_minDR);
         
-            _jets = event.getBranch<std::vector<Jet>>(config().get<std::string>("jetSrc"));
+            _jets = event.getBranch<std::vector<Particle>>(config().get<std::string>("jetSrc"));
             if (config().has("muonSrc"))
             {
                 _muons = event.getBranch<std::vector<Particle>>(config().get<std::string>("muonSrc"));
@@ -49,19 +49,20 @@ class JetSelection:
             _selectedJets = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
         }
         
-        bool passJetId(const Jet& jet) const
+        bool passJetId(const Particle& jet) const
         {
-            if (jet.NCharged==0) return false;
+            if (jet.get<int>("NCharged")==0) return false;
+            if (jet.get<int>("NNeutrals")==0) return false;
             return true;
         }
         
         virtual bool analyze(styr::Event&) override
         {
-            const std::vector<Jet>& jets = _jets->get();
+            const std::vector<Particle>& jets = _jets->get();
             for (size_t i = 0; i < _jets->size(); ++i)
             {
-                if (jets[i].PT<_minJetPt) continue;
-                if (std::fabs(jets[i].Eta)>_maxJetEta) continue;
+                if (jets[i].P4().Pt()<_minJetPt) continue;
+                if (std::fabs(jets[i].P4().Eta())>_maxJetEta) continue;
                 if (not passJetId(jets[i])) continue;
                 float minDR = 10000.;
                 if (_muons)

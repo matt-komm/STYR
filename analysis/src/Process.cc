@@ -27,6 +27,11 @@ void Process::processFile(TFile* file, const char* treeName, int max)
     }
     //tree->GetEntry(0);
     Event event(tree);
+    
+    int maxEntries =tree->GetEntries();
+    if (max>0) maxEntries = std::min<int>(max,maxEntries);
+    
+    std::cout<<"start: nev="<<maxEntries<<", file="<<file->GetName()<<std::endl;
     for (auto module: modules_)
     {
         if (not module)
@@ -35,11 +40,15 @@ void Process::processFile(TFile* file, const char* treeName, int max)
         }
         module->beginFile(file,event);
     }
-    int maxEntries =tree->GetEntries();
-    if (max>0) maxEntries = std::min<int>(max,maxEntries);
+    
+    
     for (int64_t entry = 0; entry < maxEntries; ++entry)
     {
         tree->GetEntry(entry);
+        if (entry>0 and entry%10000==0)
+        {
+            std::cout<<"processing: "<<entry<<"/"<<maxEntries<<std::endl;
+        }
         for (auto module: modules_)
         {
             if (not module->analyze(event))
@@ -57,6 +66,7 @@ void Process::processFile(TFile* file, const char* treeName, int max)
         }
         module->endFile(file,event);
     }
+    std::cout<<"done: nev="<<maxEntries<<", file="<<file->GetName()<<std::endl;
 }
 
 }

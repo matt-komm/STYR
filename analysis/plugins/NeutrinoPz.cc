@@ -15,10 +15,11 @@ class NeutrinoPz:
 {
     protected:
         styr::ConstBranchPtr<std::vector<Particle>> _leptons;
-        styr::ConstBranchPtr<std::vector<MissingET>> _met;
+        styr::ConstBranchPtr<std::vector<Particle>> _met;
         
         styr::BranchPtr<Particle> _output;
         styr::BranchPtr<float> _mtw;
+        styr::BranchPtr<float> _metScalar;
         
 
     public:
@@ -30,16 +31,18 @@ class NeutrinoPz:
         virtual void beginFile(const TFile*,styr::Event& event) override
         {
             _leptons = event.getBranch<std::vector<Particle>>(config().get<std::string>("leptonSrc"));
-            _met = event.getBranch<std::vector<MissingET>>(config().get<std::string>("metSrc"));
+            _met = event.getBranch<std::vector<Particle>>(config().get<std::string>("metSrc"));
             _output = event.createBranch<Particle>(config().get<std::string>("output"));
             _mtw = event.createBranch<float>(config().get<std::string>("output")+"_mtw");
+            _metScalar = event.createBranch<float>(config().get<std::string>("output")+"_met");
         }
         
         
         virtual bool analyze(styr::Event&) override
         {
             const std::vector<Particle>& leptons = _leptons->get();
-            const MissingET& met = _met->get()[0];
+            const Particle& met = _met->get()[0];
+            _metScalar->get()=met.P4().Pt();
             if (_leptons->size()==0)
             {
                 _output->get()=styr::Particle();
@@ -60,6 +63,7 @@ class NeutrinoPz:
                 -std::pow(leptons[0].P4().Py()+met.P4().Py(),2)
             );
             _output->get()=met;
+            
             return true;
         }        
         
