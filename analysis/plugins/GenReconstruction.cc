@@ -18,6 +18,8 @@ class GenReconstruction:
         styr::BranchPtr<float> _topPt;
         styr::BranchPtr<float> _topY;
         styr::BranchPtr<float> _cosThetaPL;
+        
+        styr::BranchPtr<int> _leptonPID;
     
     public:
         GenReconstruction():
@@ -34,6 +36,9 @@ class GenReconstruction:
             _topY = event.createBranch<float>(config().get<std::string>("output")+"_topY");
             
             _cosThetaPL = event.createBranch<float>(config().get<std::string>("output")+"_cosThetaPL");
+            
+            _leptonPID = event.createBranch<int>(config().get<std::string>("output")+"_leptonPID");
+            
             
         }
         
@@ -105,12 +110,12 @@ class GenReconstruction:
             {
                 throw std::runtime_error("Found no top quark in event");
             }
-            
             if (leptons.size()!=1)
             {
                 throw std::runtime_error("Found no lepton from top in event");
             }
             const GenParticle* leptonFromTop = leptons[0];
+            _leptonPID->get()=leptonFromTop->PID;
             
             float minDeltaPt = 1000000.;
             const GenParticle* spectatorQuark = nullptr;

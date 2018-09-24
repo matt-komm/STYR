@@ -19,6 +19,7 @@ class MergeParticles:
         
         styr::BranchPtr<float> _leptonPt;
         styr::BranchPtr<float> _leptonEta;
+        styr::BranchPtr<int> _leptonPID;
     
     public:
         MergeParticles():
@@ -36,6 +37,7 @@ class MergeParticles:
             
             _leptonPt = event.createBranch<float>(config().get<std::string>("output")+"_pt");
             _leptonEta = event.createBranch<float>(config().get<std::string>("output")+"_eta");
+            _leptonPID = event.createBranch<int>(config().get<std::string>("output")+"_PID");
         }
         
         
@@ -64,15 +66,17 @@ class MergeParticles:
             {
                 _leptonPt->get() = merged.front().P4().Pt();
                 _leptonEta->get() = merged.front().P4().Eta();
+                _leptonPID->get() = merged.front().get<int>("PID");
             }
             else
             {
                 _leptonPt->get() = -10;
                 _leptonEta->get() = -10;
+                _leptonPID->get() = 0;
             }
             
             _finalParticles->get() = std::move(merged);
-            return true;
+            return _finalParticles->get().size()==1;
         }        
         
         virtual ~MergeParticles()

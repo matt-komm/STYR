@@ -62,11 +62,13 @@ class Particle
         Particle(const Muon& muon):
             _p4(muon.P4())
         {
+            set<int>("PID",-muon.Charge*13);
         }
         
         Particle(const Electron& electron):
             _p4(electron.P4())
         {
+            set<int>("PID",-electron.Charge*11);
         }
         
         Particle(const Jet& jet):

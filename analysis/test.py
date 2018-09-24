@@ -68,6 +68,7 @@ outputModule.addBranch("nvetomuons")
 outputModule.addBranch("nvetoelectrons")
 outputModule.addBranch("selectedLeptons_pt")
 outputModule.addBranch("selectedLeptons_eta")
+outputModule.addBranch("selectedLeptons_PID")
 
 outputModule.addBranch("btight_nominal_bWeight_nominal")
 outputModule.addBranch("btight_nominal_bWeight_bcUp")
@@ -79,6 +80,7 @@ outputModule.addBranch("gentop_topMass")
 outputModule.addBranch("gentop_topPt")
 outputModule.addBranch("gentop_topY")
 outputModule.addBranch("gentop_cosThetaPL")
+outputModule.addBranch("gentop_leptonPID")
 
 for unc,jet,met in [
     ("nominal","jetmet_jetNominal","jetmet_metNominal"),
@@ -106,5 +108,5 @@ for unc,jet,met in [
 
 proc.addModule(outputModule)
 
-proc.processFile(f,"Delphes",-1)
+proc.processFile(f,"Delphes",-1,True)
 

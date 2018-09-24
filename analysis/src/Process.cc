@@ -18,7 +18,7 @@ void Process::addModule(Module* module)
     modules_.push_back(module);  
 }
 
-void Process::processFile(TFile* file, const char* treeName, int max)
+void Process::processFile(TFile* file, const char* treeName, int max, bool filter)
 {
     TTree* tree = dynamic_cast<TTree*>(file->Get(treeName));
     if (not tree)
@@ -41,18 +41,24 @@ void Process::processFile(TFile* file, const char* treeName, int max)
         module->beginFile(file,event);
     }
     
+    auto t_start = std::chrono::high_resolution_clock::now();
     
+    int64_t skipped = 0;
     for (int64_t entry = 0; entry < maxEntries; ++entry)
     {
         tree->GetEntry(entry);
         if (entry>0 and entry%10000==0)
         {
-            std::cout<<"processing: "<<entry<<"/"<<maxEntries<<std::endl;
+            auto t_end = std::chrono::high_resolution_clock::now();
+            double elaspedTimeMs = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+            std::cout<<"processing: "<<entry<<"/"<<maxEntries<<"/"<<skipped<<" (entry/max/skipped), rate="<<10000./(elaspedTimeMs/1000.)<<" ev/s"<<std::endl;
+            t_start = std::chrono::high_resolution_clock::now();
         }
         for (auto module: modules_)
         {
-            if (not module->analyze(event))
+            if ((not module->analyze(event)) and filter)
             {
+                skipped+=1;
                 break;
             }
         }
@@ -66,7 +72,7 @@ void Process::processFile(TFile* file, const char* treeName, int max)
         }
         module->endFile(file,event);
     }
-    std::cout<<"done: nev="<<maxEntries<<", file="<<file->GetName()<<std::endl;
+    std::cout<<"done: nev="<<(maxEntries-skipped)<<"/"<<maxEntries<<", file="<<file->GetName()<<std::endl;
 }
 
 }
