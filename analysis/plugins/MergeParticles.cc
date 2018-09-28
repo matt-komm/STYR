@@ -42,8 +42,9 @@ class MergeParticles:
         
         
         
-        virtual bool analyze(styr::Event&) override
+        virtual bool analyze(styr::Event&, bool pass) override
         {
+            if (not pass) return pass;
             const std::vector<Particle>& p1 = _p1->get();
             const std::vector<Particle>& p2 = _p2->get();
             

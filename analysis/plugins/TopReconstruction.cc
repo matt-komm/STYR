@@ -56,9 +56,9 @@ class TopReconstruction:
         }
 
 
-        virtual bool analyze(styr::Event&) override
+        virtual bool analyze(styr::Event&, bool pass) override
         {
-            
+            if (not pass) return pass;
             if (_leptons->size()==0)
             {
                 _topMass->get()=-10;

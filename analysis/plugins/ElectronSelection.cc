@@ -76,8 +76,9 @@ class ElectronSelection:
             return true;
         }
         
-        virtual bool analyze(styr::Event&) override
+        virtual bool analyze(styr::Event&, bool pass) override
         {
+            if (not pass) return pass;
             const std::vector<Electron>& electrons = _electrons->get();
             int nVetoElectrons = 0;
             for (size_t i = 0; i < _electrons->size(); ++i)

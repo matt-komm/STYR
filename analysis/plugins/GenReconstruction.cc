@@ -52,9 +52,9 @@ class GenReconstruction:
             return false;
         }
         
-        virtual bool analyze(styr::Event&) override
+        virtual bool analyze(styr::Event&, bool pass) override
         {
-            
+            if (not pass) return pass;
             const std::vector<GenParticle>& genParticles = _genParticles->get();
             const GenParticle* top = nullptr;
             std::vector<const GenParticle*> leptons;

@@ -7,13 +7,12 @@ ROOT.gSystem.Load("plugins/libstyr-plugins.so")
 
 
 proc = ROOT.styr.Process()
-f = ROOT.TFile.Open("/media/matthias/HDD/matthias/Analysis/YR/ST_tch_14TeV_top.root")
-
+'''
 genReco = ROOT.styr.GenReconstruction()
 genReco.config().set("genSrc","Particle")
 genReco.config().set("output","gentop")
 proc.addModule(genReco)
-
+'''
 muonSelection = ROOT.styr.MuonSelection()
 muonSelection.config().set("muonSrc","MuonTight").set("minPt",40.).set("maxEta",3.0).set("iso",0.05).set("output","selectedMuons")
 proc.addModule(muonSelection)
@@ -75,13 +74,13 @@ outputModule.addBranch("btight_nominal_bWeight_bcUp")
 outputModule.addBranch("btight_nominal_bWeight_bcDown")
 outputModule.addBranch("btight_nominal_bWeight_lUp")
 outputModule.addBranch("btight_nominal_bWeight_lDown")
-
+'''
 outputModule.addBranch("gentop_topMass")
 outputModule.addBranch("gentop_topPt")
 outputModule.addBranch("gentop_topY")
 outputModule.addBranch("gentop_cosThetaPL")
 outputModule.addBranch("gentop_leptonPID")
-
+'''
 for unc,jet,met in [
     ("nominal","jetmet_jetNominal","jetmet_metNominal"),
     ("jecUp","jetmet_jetJecUp","jetmet_metJecUp"),
@@ -108,5 +107,18 @@ for unc,jet,met in [
 
 proc.addModule(outputModule)
 
-proc.processFile(f,"Delphes",-1,True)
+for f in [
+    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1000_0.root",
+    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1000_1.root",
+    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1001_0.root",
 
+   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1000_0.root",
+   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1001_0.root",
+   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1002_0.root",
+]:
+    rootFile = ROOT.TFile.Open(f)
+    if not rootFile:
+        print "skipping",f
+    else:
+        proc.processFile(rootFile,"Delphes",-1,True)
+    rootFile.Close()

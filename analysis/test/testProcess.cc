@@ -24,7 +24,7 @@ class MyModuleProcess:
         {
         }
         
-        virtual bool analyze(styr::Event& event) override
+        virtual bool analyze(styr::Event& event,bool) override
         {
             auto value = event.getBranch<float>(_valueName.c_str());
             if (_entry>=_values.size())

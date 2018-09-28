@@ -54,12 +54,20 @@ void Process::processFile(TFile* file, const char* treeName, int max, bool filte
             std::cout<<"processing: "<<entry<<"/"<<maxEntries<<"/"<<skipped<<" (entry/max/skipped), rate="<<10000./(elaspedTimeMs/1000.)<<" ev/s"<<std::endl;
             t_start = std::chrono::high_resolution_clock::now();
         }
-        for (auto module: modules_)
+        if (filter)
         {
-            if ((not module->analyze(event)) and filter)
+            bool accepted = true;
+            for (auto module: modules_)
             {
-                skipped+=1;
-                break;
+                accepted = module->analyze(event,accepted) and accepted;
+            }
+            if (not accepted) skipped+=1;
+        }
+        else
+        {
+            for (auto module: modules_)
+            {
+                module->analyze(event,true);
             }
         }
         event.clearOutputBuffers();
