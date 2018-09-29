@@ -1,18 +1,25 @@
 import ROOT
 import numpy
+import argparse
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('-i','--input',dest="inputs",default=[],action='append')
+parser.add_argument('-o','--output', dest='output', default='.')
+parser.add_argument('--isSignal',action='store_true', dest='isSignal', default=False)
+
+args = parser.parse_args()
 
 #ROOT.gSystem.Load("libDelphes.so")
 ROOT.gSystem.Load("libstyr.so")
 ROOT.gSystem.Load("plugins/libstyr-plugins.so")
 
-
 proc = ROOT.styr.Process()
-'''
-genReco = ROOT.styr.GenReconstruction()
-genReco.config().set("genSrc","Particle")
-genReco.config().set("output","gentop")
-proc.addModule(genReco)
-'''
+if args.isSignal:
+    genReco = ROOT.styr.GenReconstruction()
+    genReco.config().set("genSrc","Particle")
+    genReco.config().set("output","gentop")
+    proc.addModule(genReco)
+
 muonSelection = ROOT.styr.MuonSelection()
 muonSelection.config().set("muonSrc","MuonTight").set("minPt",40.).set("maxEta",3.0).set("iso",0.05).set("output","selectedMuons")
 proc.addModule(muonSelection)
@@ -58,9 +65,9 @@ for unc,jet,met in [
     topReco.config().set("output","recotop_"+unc)
     proc.addModule(topReco)
 
-    
-
 outputModule = ROOT.styr.OutputTreeWriter()
+outputModule.config().set("output",args.output)
+
 outputModule.addBranch("selectedElectrons")
 outputModule.addBranch("selectedMuons")
 outputModule.addBranch("nvetomuons")
@@ -74,13 +81,14 @@ outputModule.addBranch("btight_nominal_bWeight_bcUp")
 outputModule.addBranch("btight_nominal_bWeight_bcDown")
 outputModule.addBranch("btight_nominal_bWeight_lUp")
 outputModule.addBranch("btight_nominal_bWeight_lDown")
-'''
-outputModule.addBranch("gentop_topMass")
-outputModule.addBranch("gentop_topPt")
-outputModule.addBranch("gentop_topY")
-outputModule.addBranch("gentop_cosThetaPL")
-outputModule.addBranch("gentop_leptonPID")
-'''
+
+if args.isSignal:
+    outputModule.addBranch("gentop_topMass")
+    outputModule.addBranch("gentop_topPt")
+    outputModule.addBranch("gentop_topY")
+    outputModule.addBranch("gentop_cosThetaPL")
+    outputModule.addBranch("gentop_leptonPID")
+
 for unc,jet,met in [
     ("nominal","jetmet_jetNominal","jetmet_metNominal"),
     ("jecUp","jetmet_jetJecUp","jetmet_metJecUp"),
@@ -102,23 +110,15 @@ for unc,jet,met in [
     outputModule.addBranch("recotop_"+unc+"_cosThetaPL")
     outputModule.addBranch("recotop_"+unc+"_ljetPt")
     outputModule.addBranch("recotop_"+unc+"_ljetEta")
-    
-
+   
 
 proc.addModule(outputModule)
 
-for f in [
-    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1000_0.root",
-    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1000_1.root",
-    "root://eoscms.cern.ch//store/group/upgrade/delphes_output/YR_Delphes/Delphes342pre15/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_200PU/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_1001_0.root",
-
-   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1000_0.root",
-   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1001_0.root",
-   #"root://cmseos.fnal.gov//store/user/snowmass/noreplica/YR_Delphes/Delphes342pre15/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_200PU/W3JetsToLNu_TuneCUETP8M1_14TeV-madgraphMLM-pythia8_1002_0.root",
-]:
+for f in args.inputs:
     rootFile = ROOT.TFile.Open(f)
     if not rootFile:
         print "skipping",f
     else:
-        proc.processFile(rootFile,"Delphes",-1,True)
+        proc.processFile(rootFile,"Delphes",-1,not args.isSignal)
     rootFile.Close()
+    

@@ -13,22 +13,24 @@ class OutputTreeWriter:
     public styr::Module
 {
     protected:
-        styr::ConstBranchPtr<std::vector<Jet>> _jets;
-        styr::ConstBranchPtr<std::vector<Muon>> _muons;
-        styr::ConstBranchPtr<std::vector<Electron>> _electrons;
         
+    
+        styr::ConstBranchPtr<std::vector<HepMCEvent>> _event;
+
         std::vector<std::string> _branchNames;
         std::vector<BranchBasePtr> _branches;
         
         std::unique_ptr<TFile> _output;
         TTree* _tree;
         TH1F* _histEvents;    
-    
+        
+        std::string _prefix;
     public:
         OutputTreeWriter():
             styr::Module(""),
             _tree(nullptr),
-            _histEvents(nullptr)
+            _histEvents(nullptr),
+            _prefix("")
             
         {
         }
@@ -46,6 +48,9 @@ class OutputTreeWriter:
         
         virtual void beginFile(const TFile* f,styr::Event& event) override
         {
+            _event = event.getBranch<std::vector<HepMCEvent>>("Event");
+            _prefix = config().get<std::string>("output");
+        
             if (_output and _tree and _histEvents)
             {
                 _histEvents->Write();
@@ -65,9 +70,10 @@ class OutputTreeWriter:
             {
                 fileName = fileName.substr(posSlash+1,posDot);
             }
-            _output.reset(new TFile((fileName+"_friend.root").c_str(),"RECREATE"));
-            _histEvents = new TH1F("nevents","",2,-10,10);
+            _output.reset(new TFile((_prefix+fileName+"_friend.root").c_str(),"RECREATE"));
+            _histEvents = new TH1F("nevents","",2,-2,2);
             _histEvents->SetDirectory(_output.get());
+            _histEvents->Sumw2();
             _tree = new TTree("Events","Events");
             _tree->SetDirectory(_output.get());
             _branches.clear();
@@ -90,7 +96,9 @@ class OutputTreeWriter:
                 }
                 _tree->Fill();
             }
-            _histEvents->Fill(1);
+            
+            
+            _histEvents->Fill(_event->get()[0].Weight>0?1:-1,_event->get()[0].Weight);
             return pass;
         }        
         
