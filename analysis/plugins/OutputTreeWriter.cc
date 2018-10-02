@@ -20,11 +20,14 @@ class OutputTreeWriter:
         std::vector<std::string> _branchNames;
         std::vector<BranchBasePtr> _branches;
         
+        
         std::unique_ptr<TFile> _output;
         TTree* _tree;
         TH1F* _histEvents;    
         
         std::string _prefix;
+        
+        float _genWeight;
     public:
         OutputTreeWriter():
             styr::Module(""),
@@ -70,7 +73,7 @@ class OutputTreeWriter:
             {
                 fileName = fileName.substr(posSlash+1,posDot);
             }
-            _output.reset(new TFile((_prefix+fileName+"_friend.root").c_str(),"RECREATE"));
+            _output.reset(new TFile((_prefix+"/"+fileName+"_friend.root").c_str(),"RECREATE"));
             _histEvents = new TH1F("nevents","",2,-2,2);
             _histEvents->SetDirectory(_output.get());
             _histEvents->Sumw2();
@@ -83,10 +86,12 @@ class OutputTreeWriter:
                 branch->book(_tree);
                 _branches.push_back(branch);
             }
+            _tree->Branch("genWeight",&_genWeight,"genWeight/F");
         }
 
         virtual bool analyze(styr::Event&, bool pass) override
         {
+            _genWeight = _event->get()[0].Weight;
             if (pass)
             {
                 for (auto& branch: _branches)
@@ -97,9 +102,8 @@ class OutputTreeWriter:
                 _tree->Fill();
             }
             
-            
-            _histEvents->Fill(_event->get()[0].Weight>0?1:-1,_event->get()[0].Weight);
-            return pass;
+            _histEvents->Fill(_genWeight>0?1:-1,_genWeight);
+            return true;
         }        
         
         virtual void endFile(const TFile*,styr::Event&) override

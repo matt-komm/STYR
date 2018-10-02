@@ -64,6 +64,9 @@ for unc,jet,met in [
     topReco.config().set("neutrinoSrc","neutrino_"+unc)
     topReco.config().set("output","recotop_"+unc)
     proc.addModule(topReco)
+    
+finalSkim = ROOT.styr.FinalSkim()
+proc.addModule(finalSkim)
 
 outputModule = ROOT.styr.OutputTreeWriter()
 outputModule.config().set("output",args.output)
@@ -108,8 +111,14 @@ for unc,jet,met in [
     outputModule.addBranch("recotop_"+unc+"_topY")
 
     outputModule.addBranch("recotop_"+unc+"_cosThetaPL")
+    
+    outputModule.addBranch("recotop_"+unc+"_ljetIsPU")
     outputModule.addBranch("recotop_"+unc+"_ljetPt")
     outputModule.addBranch("recotop_"+unc+"_ljetEta")
+    
+    outputModule.addBranch("recotop_"+unc+"_bjetIsPU")
+    outputModule.addBranch("recotop_"+unc+"_bjetPt")
+    outputModule.addBranch("recotop_"+unc+"_bjetEta")
    
 
 proc.addModule(outputModule)

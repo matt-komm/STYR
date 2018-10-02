@@ -78,7 +78,6 @@ class MuonSelection:
         
         virtual bool analyze(styr::Event&, bool pass) override
         {
-            if (not pass) return pass;
             const std::vector<Muon>& muons = _muons->get();
             int nVetoMuons = 0;
             for (size_t i = 0; i < _muons->size(); ++i)

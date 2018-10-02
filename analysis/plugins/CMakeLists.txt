@@ -11,6 +11,7 @@ set(HEADER_FILES_FOR_DICT
     ${CMAKE_CURRENT_SOURCE_DIR}/TopReconstruction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/GenReconstruction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/JetMetUncertainty.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/FinalSkim.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
 )
 
@@ -38,6 +39,7 @@ add_library(styr-plugins SHARED
     MergeParticles.cc
     GenReconstruction.cc
     JetMetUncertainty.cc
+    FinalSkim.cc
     dict.C
 )
 target_link_libraries(styr-plugins styr ${ROOT_LIBRARIES} ${DELPHES_LIBRARIES})

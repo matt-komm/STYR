@@ -10,5 +10,5 @@
 #pragma link C++ class styr::TopReconstruction-!;
 #pragma link C++ class styr::GenReconstruction-!;
 #pragma link C++ class styr::JetMetUncertainty-!;
-
+#pragma link C++ class styr::FinalSkim-!;
 #endif

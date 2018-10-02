@@ -19,10 +19,15 @@ class TopReconstruction:
         
         styr::ConstBranchPtr<Particle> _neutrino;
         
-        
+        styr::ConstBranchPtr<std::vector<Jet>> _genJets;
         
         styr::BranchPtr<float> _cosThetaPL;
         
+        styr::BranchPtr<int> _bjetIsPU;
+        styr::BranchPtr<float> _bjetPt;
+        styr::BranchPtr<float> _bjetEta;
+        
+        styr::BranchPtr<int> _ljetIsPU;
         styr::BranchPtr<float> _ljetPt;
         styr::BranchPtr<float> _ljetEta;
         
@@ -47,27 +52,39 @@ class TopReconstruction:
             
             _cosThetaPL = event.createBranch<float>(config().get<std::string>("output")+"_cosThetaPL");
             
+            _bjetIsPU = event.createBranch<int>(config().get<std::string>("output")+"_bjetIsPU");
+            _bjetPt = event.createBranch<float>(config().get<std::string>("output")+"_bjetPt");
+            _bjetEta = event.createBranch<float>(config().get<std::string>("output")+"_bjetEta");
+            
+            _ljetIsPU = event.createBranch<int>(config().get<std::string>("output")+"_ljetIsPU");
             _ljetPt = event.createBranch<float>(config().get<std::string>("output")+"_ljetPt");
             _ljetEta = event.createBranch<float>(config().get<std::string>("output")+"_ljetEta");
             
             _topMass = event.createBranch<float>(config().get<std::string>("output")+"_topMass");
             _topPt = event.createBranch<float>(config().get<std::string>("output")+"_topPt");
             _topY = event.createBranch<float>(config().get<std::string>("output")+"_topY");
+            
+            _genJets = event.getBranch<std::vector<Jet>>("GenJet");
         }
 
 
         virtual bool analyze(styr::Event&, bool pass) override
         {
-            if (not pass) return pass;
             if (_leptons->size()==0)
             {
                 _topMass->get()=-10;
                 _topPt->get()=-10;
                 _topY->get()=-10;
                 _cosThetaPL->get()=-10;
+                
+                _bjetIsPU->get()=-1;
+                _bjetEta->get()=-10;
+                _bjetPt->get()=-10;
+                
+                _ljetIsPU->get()=-1;
                 _ljetEta->get()=-10;
                 _ljetPt->get()=-10;
-                return true;
+                return false;
             }
             Particle lepton = _leptons->get()[0];
             
@@ -104,12 +121,37 @@ class TopReconstruction:
                 _topPt->get()=-10;
                 _topY->get()=-10;
                 _cosThetaPL->get()=-10;
-                _ljetPt->get()=-10;
+                
+                _bjetIsPU->get()=-1;
+                _bjetEta->get()=-10;
+                _bjetPt->get()=-10;
+                
+                _ljetIsPU->get()=-1;
                 _ljetEta->get()=-10;
+                _ljetPt->get()=-10;
                 return true;
             }
+            _ljetIsPU->get() = 0;
             _ljetPt->get() = ljet.P4().Pt();
             _ljetEta->get() = ljet.P4().Eta();
+            
+            _bjetIsPU->get() = 0;
+            _bjetPt->get() = bjet.P4().Pt();
+            _bjetEta->get() = bjet.P4().Eta();
+            
+            const std::vector<Jet>& genJets = _genJets->get();
+            
+            for (size_t igenJet = 0; igenJet < _genJets->size(); ++igenJet)
+            {
+                if (genJets[igenJet].P4().DeltaR(ljet.P4())<0.2 and std::fabs(1-genJets[igenJet].P4().Pt()/ljet.P4().Pt())<0.1)
+                {
+                    _ljetIsPU->get() = 1;
+                }
+                if (genJets[igenJet].P4().DeltaR(bjet.P4())<0.2 and std::fabs(1-genJets[igenJet].P4().Pt()/bjet.P4().Pt())<0.1)
+                {
+                    _bjetIsPU->get() = 1;
+                }
+            }
             
             TLorentzVector topVector(0,0,0,0);
             topVector+=lepton.P4();

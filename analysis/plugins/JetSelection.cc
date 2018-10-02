@@ -58,9 +58,8 @@ class JetSelection:
         
         virtual bool analyze(styr::Event&, bool pass) override
         {
-            if (not pass) return pass;
             const std::vector<Particle>& jets = _jets->get();
-            if (_jets->size()==0)
+            if (_jets->size()<2)
             {
                 return false;
             }

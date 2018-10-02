@@ -40,7 +40,6 @@ class NeutrinoPz:
         
         virtual bool analyze(styr::Event&, bool pass) override
         {
-            if (not pass) return pass;
             const std::vector<Particle>& leptons = _leptons->get();
             const Particle& met = _met->get()[0];
             _metScalar->get()=met.P4().Pt();
@@ -48,7 +47,7 @@ class NeutrinoPz:
             {
                 _output->get()=styr::Particle();
                 _mtw->get()=-10;
-                return true;
+                return false;
             }
             auto solution = NuMomentum(
                 leptons[0].P4().Px(), leptons[0].P4().Py(), leptons[0].P4().Pz(), 
