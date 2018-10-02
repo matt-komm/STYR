@@ -76,7 +76,7 @@ class MergeParticles:
             }
             
             _finalParticles->get() = std::move(merged);
-            return _finalParticles->get().size()==1;
+            return true;
         }        
         
         virtual ~MergeParticles()

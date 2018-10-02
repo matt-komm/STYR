@@ -84,7 +84,7 @@ class TopReconstruction:
                 _ljetIsPU->get()=-1;
                 _ljetEta->get()=-10;
                 _ljetPt->get()=-10;
-                return false;
+                return true;
             }
             Particle lepton = _leptons->get()[0];
             
