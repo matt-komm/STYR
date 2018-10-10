@@ -38,7 +38,7 @@ class NeutrinoPz:
         }
         
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Particle>& leptons = _leptons->get();
             const Particle& met = _met->get()[0];

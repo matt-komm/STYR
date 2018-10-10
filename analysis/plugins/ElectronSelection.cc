@@ -16,6 +16,7 @@ class ElectronSelection:
         
         styr::BranchPtr<std::vector<Particle>> _selectedElectrons;
         styr::BranchPtr<int> _vetoElectrons;
+        styr::BranchPtr<int> _elecat;
         
         float _minElectronPt;
         float _maxElectronEta;
@@ -52,6 +53,7 @@ class ElectronSelection:
             
             _selectedElectrons = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
             _vetoElectrons = event.createBranch<int>("nvetoelectrons");
+            _elecat = event.createBranch<int>("elecat");
         }
         
         bool passElectronId(const Electron&) const
@@ -63,9 +65,18 @@ class ElectronSelection:
         {
             if (electron.PT<_minElectronPt) return false;
             if (std::fabs(electron.Eta)>_maxElectronEta) return false;
-            if (electron.IsolationVarRhoCorr>_electronIso) return false;
             if (not passElectronId(electron)) return false;
             return true;
+        }
+        
+        bool passElectronIso(const Electron& electron) const
+        {
+            return (electron.IsolationVarRhoCorr<_electronIso);
+        }
+        
+        bool passElectronIsoSB(const Electron& electron) const
+        {
+            return (electron.IsolationVarRhoCorr>0.2 and electron.IsolationVarRhoCorr<0.4);
         }
         
         bool passElectronVeto(const Electron& electron) const
@@ -76,15 +87,24 @@ class ElectronSelection:
             return true;
         }
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Electron>& electrons = _electrons->get();
             int nVetoElectrons = 0;
+            _elecat->get()=0;
             for (size_t i = 0; i < _electrons->size(); ++i)
             {
                 if (passElectronSelection(electrons[i]))
                 {
-                    _selectedElectrons->get().push_back(electrons[i]);
+                    if (passElectronIso(electrons[i]))
+                    {
+                        _selectedElectrons->get().push_back(electrons[i]);
+                    }
+                    else if (passElectronIsoSB(electrons[i]))
+                    {
+                        _elecat->get()+=1;
+                        _selectedElectrons->get().push_back(electrons[i]);
+                    }
                 }
                 else if (passElectronVeto(electrons[i]))
                 {

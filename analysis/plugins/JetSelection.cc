@@ -56,7 +56,7 @@ class JetSelection:
             return true;
         }
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Particle>& jets = _jets->get();
             if (_jets->size()<2)

@@ -21,11 +21,11 @@ if args.isSignal:
     proc.addModule(genReco)
 
 muonSelection = ROOT.styr.MuonSelection()
-muonSelection.config().set("muonSrc","MuonTight").set("minPt",40.).set("maxEta",3.0).set("iso",0.05).set("output","selectedMuons")
+muonSelection.config().set("muonSrc","MuonTight").set("minPt",40.).set("maxEta",3.0).set("iso",0.06).set("output","selectedMuons")
 proc.addModule(muonSelection)
 
 electronSelection = ROOT.styr.ElectronSelection()
-electronSelection.config().set("electronSrc","Electron").set("minPt",40.).set("maxEta",3.0).set("iso",0.05).set("output","selectedElectrons")
+electronSelection.config().set("electronSrc","Electron").set("minPt",40.).set("maxEta",3.0).set("iso",0.06).set("output","selectedElectrons")
 proc.addModule(electronSelection)
 
 leptons = ROOT.styr.MergeParticles()

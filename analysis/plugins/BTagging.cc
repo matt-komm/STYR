@@ -322,7 +322,7 @@ class BTagging:
             return (btag & bitmask)>0;
         }
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Particle>& jets = _jets->get();
             std::vector<BWGHT::Jet> jetsForBtagging;

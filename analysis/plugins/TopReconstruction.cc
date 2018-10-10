@@ -68,7 +68,7 @@ class TopReconstruction:
         }
 
 
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             if (_leptons->size()==0)
             {
@@ -131,11 +131,11 @@ class TopReconstruction:
                 _ljetPt->get()=-10;
                 return true;
             }
-            _ljetIsPU->get() = 0;
+            _ljetIsPU->get() = 1;
             _ljetPt->get() = ljet.P4().Pt();
             _ljetEta->get() = ljet.P4().Eta();
             
-            _bjetIsPU->get() = 0;
+            _bjetIsPU->get() = 1;
             _bjetPt->get() = bjet.P4().Pt();
             _bjetEta->get() = bjet.P4().Eta();
             
@@ -143,13 +143,13 @@ class TopReconstruction:
             
             for (size_t igenJet = 0; igenJet < _genJets->size(); ++igenJet)
             {
-                if (genJets[igenJet].P4().DeltaR(ljet.P4())<0.2 and std::fabs(1-genJets[igenJet].P4().Pt()/ljet.P4().Pt())<0.1)
+                if (genJets[igenJet].P4().DeltaR(ljet.P4())<0.4 and std::fabs(1-genJets[igenJet].P4().Pt()/ljet.P4().Pt())<0.2)
                 {
-                    _ljetIsPU->get() = 1;
+                    _ljetIsPU->get() = 0;
                 }
-                if (genJets[igenJet].P4().DeltaR(bjet.P4())<0.2 and std::fabs(1-genJets[igenJet].P4().Pt()/bjet.P4().Pt())<0.1)
+                if (genJets[igenJet].P4().DeltaR(bjet.P4())<0.4 and std::fabs(1-genJets[igenJet].P4().Pt()/bjet.P4().Pt())<0.2)
                 {
-                    _bjetIsPU->get() = 1;
+                    _bjetIsPU->get() = 0;
                 }
             }
             

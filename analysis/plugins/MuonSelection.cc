@@ -16,6 +16,7 @@ class MuonSelection:
         
         styr::BranchPtr<std::vector<Particle>> _selectedMuons;
         styr::BranchPtr<int> _vetoMuons;
+        styr::BranchPtr<int> _muoncat;
         
         float _minMuonPt;
         float _maxMuonEta;
@@ -52,6 +53,7 @@ class MuonSelection:
             
             _selectedMuons = event.createBranch<std::vector<Particle>>(config().get<std::string>("output"));
             _vetoMuons = event.createBranch<int>("nvetomuons");
+            _muoncat = event.createBranch<int>("muoncat");
         }
         
         bool passMuonId(const Muon&) const
@@ -63,9 +65,18 @@ class MuonSelection:
         {
             if (muon.PT<_minMuonPt) return false;
             if (std::fabs(muon.Eta)>_maxMuonEta) return false;
-            if (muon.IsolationVarRhoCorr>_muonIso) return false;
             if (not passMuonId(muon)) return false;
             return true;
+        }
+        
+        bool passMuonIso(const Muon& muon) const
+        {
+            return (muon.IsolationVarRhoCorr<_muonIso);
+        }
+        
+        bool passMuonIsoSB(const Muon& muon) const
+        {
+            return (muon.IsolationVarRhoCorr>0.2 and muon.IsolationVarRhoCorr<0.4);
         }
         
         bool passMuonVeto(const Muon& muon) const
@@ -76,15 +87,25 @@ class MuonSelection:
             return true;
         }
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Muon>& muons = _muons->get();
             int nVetoMuons = 0;
+            _muoncat->get()=0;
             for (size_t i = 0; i < _muons->size(); ++i)
             {
                 if (passMuonSelection(muons[i]))
                 {
-                    _selectedMuons->get().push_back(muons[i]);
+                    if (passMuonIso(muons[i]))
+                    {
+                        _selectedMuons->get().push_back(muons[i]);
+                    } 
+                    else if (passMuonIsoSB(muons[i]))
+                    {
+                        _muoncat->get()+=1;
+                        _selectedMuons->get().push_back(muons[i]);
+                    }
+                    
                 }
                 else if (passMuonVeto(muons[i]))
                 {

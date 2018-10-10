@@ -95,7 +95,7 @@ class JetMetUncertainty:
         
         
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<Jet>& jets = _jets->get();
             Particle met = _met->get()[0];

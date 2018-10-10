@@ -52,7 +52,7 @@ class GenReconstruction:
             return false;
         }
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             const std::vector<GenParticle>& genParticles = _genParticles->get();
             const GenParticle* top = nullptr;

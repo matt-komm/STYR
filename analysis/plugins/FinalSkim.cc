@@ -31,7 +31,7 @@ class FinalSkim:
         
        
         
-        virtual bool analyze(styr::Event&, bool pass) override
+        virtual bool analyze(styr::Event&, bool) override
         {
             bool isNull = true;
             for (auto& massBranch: _topMasses)
